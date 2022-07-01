@@ -1,3 +1,17 @@
+This project is a nostalgy revival project of an old game that I created as a teenager.
+
+The reason I chose to revive this exact game was the overly positive review of the game (given what it is) I stumbled upon on old-games.ru.
+
+The new version adds compatibility with newer operating systems, music and new game features.
+
+See the gameplay footage at: https://youtu.be/7BP5n23aFtE
+
+---
+
+Original readme file that came with the distribution:
+
+---
+
 Upr00ted tree software is not responsible for any physical, economical or psychical damages!
 
 
