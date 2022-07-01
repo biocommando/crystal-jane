@@ -1,0 +1,1 @@
+gcc pomppu.c allegro_compat.c synth.c music.c -Iinclude liballegro_monolith.dll.a -o crystal
