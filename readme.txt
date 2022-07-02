@@ -4,7 +4,10 @@ The reason I chose to revive this exact game was the overly positive review of t
 
 The new version adds compatibility with newer operating systems, music and new game features.
 
-See the gameplay footage at: https://youtu.be/7BP5n23aFtE
+See the gameplay footage at:
+https://youtu.be/PuTeU0wwcFY
+Older version:
+https://youtu.be/7BP5n23aFtE
 
 Build on 2022-07-02 available as binary: https://drive.google.com/file/d/1MnRTRd9VPXBInpP40to-7KlBRNl01bW_/view?usp=sharing
 
