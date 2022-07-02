@@ -163,18 +163,18 @@ int main(int argc, char **argv)
 			"\nCopyrights 2004-2022 by Joonas Salonpaa\nMIT licensed\n\n"
 			"Available command line arguments:\n\n"
 			"  command   | description\n"
-			"--------------------------------------------------------\n"
+			"--------------------------------------------------------------------------------\n"
 			"    h       | Show this help\n"
 			"    m       | Disable music\n"
 			"    s       | Disable sound\n"
-			"            | Note: if both m and s are given the sound\n"
-			"            | driver won't be loaded at all.\n"
+			"            | Note: if both m and s are given the sound driver won't be loaded\n"
+			"            | at all.\n"
 			"    w       | Wait for ENTER press before anything.\n"
-			"            | Makes it easier for screen recording to\n"
-			"            | capture also the beginning of the game.\n"
+			"            | Makes it easier for screen recording to capture also the beginning\n"
+			"            | of the game.\n"
 			"    L[NUM]  | Skip to [NUM] level (1...15).\n"
-			"            | When this option is selected highscore is\n"
-			"            | not saved.\n"
+			"            | When this option is selected highscore is not saved.\n"
+			"    r       | Enable replay more that prevents level progression\n"
 		);
 		return 0;
 	}
@@ -402,7 +402,8 @@ alku:
 
 			initial_frame_counter = get_frame_counter();
 			time_counter = 0;
-			level++;
+			if (!GET_ARG('r'))
+				level++;
 			jump = -1;
 			on_platform = 1;
 			x = 15;
