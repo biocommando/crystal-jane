@@ -86,62 +86,6 @@ int bat_x[50], bat_y[50];
 int platform_count, wall_count, diamond_count, bat_count;
 int scaling = 3;
 
-/*************************************************************'
-
-funktiot:
-
-piirra_boxi = piirtää bufferiin yksivärisen laatikon
-parametrit:
-x1,y1 = vasemman yläkulman koordinaatit
-x2,y2 = oikean alakulman koordinaatit
-boxvari = laatikon väri
-**
-grtila = vaihtaa grafiikka/teksti tilaan/varaa muistia & alustaa bufferin
-		 /flippaa puskurin näytälle
-tila = mitä yllä olevista vaihtoehdoista tekee
-**
-sprite_do = piirtää yhden spriten
-_x,_y = vasemman yläkulman koordinaatit
-aluex = kuvan leveys
-aluey = kuvan korkeus
-kumpi = mikä sprite (alunperin altogrimissa 2 spriteä...)
-lahella = skaalaus (yli 1, kokonaislukuja)
-**
-sprite_read = lukee spriten tiedostosta
-kumpi = mikä sprite
-***********
-muuttujat:
-
-_tied = yleishyädyllinen tiedosto (kaikki data on samassa tiedostossa,
-		paitsi hiscore)
-**
-tulos = tiedoston osoittaja...
-anim = ääh.. [0] mitä animaatiota jane käyttää [1] milloin tulee
-	   seuraava animaatio.
-lautalla = onko jane lautan päällä (ei tipu lautan läpi).
-hyppy = kuinka paljon hyppyvoimaa jäljellä (kun on painettu hyppy näppiä)
-aani = onks äänet päällä??? KUULUUKO???!
-aijavas1+2,aijaoik1+2,dia_spr = spritejä nuo kaikki (yksi numero indexissä
-								edustaa yhtä väriä (/väripistettä))
-*buf = näyttäbufferi      HUOM!
-tiedluku = lukee levelit ja niitten nimet!
-turbo_pc = 1= windows3.1 tai win9X,2X me mutta 2= WIN (badbadbad) XP!
-**
-y,x = janen sijainti
-lives = elämiä
-diamonds = monta timanttia keräämättä
-nopeus = pc:n nopeus
-aika = aikaa jälellä ennen kun menee enkuu!
-level = mikä leveli
-lasku = yleishyädyllinen (h)intti
-lauttax/y = lauttojen koordinaatit (20 lauttaa per level)
-diamondx/y = timanttejen/kristallejen koordinaatit (10 timanttii per level)
-enkka = ennätys
-  -- EIPä MITTääN YLLäTTäVVää.. NYT VAAN SPACEJABIN KIMPUUN
-	--- ( : - O ) NEIN!!!!!!!!!!!!!!
-'**************************************************************/
-
-
 const char *get_arg(int argc, char **argv, char flag)
 {
 	for (int i = 1; i < argc; i++)
