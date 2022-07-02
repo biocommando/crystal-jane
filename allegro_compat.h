@@ -51,7 +51,7 @@ int get_frame_counter();
 
 void set_sfx_off(int state);
 
-int init_allegro();
+int init_allegro(int scale);
 int wait_event();
 void wait_delay(int v);
 

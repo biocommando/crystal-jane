@@ -84,6 +84,7 @@ int y, x, lives, diamonds, time_counter, level, count, platform_x[50], platform_
 int score = 0;
 int bat_x[50], bat_y[50];
 int platform_count, wall_count, diamond_count, bat_count;
+int scaling = 3;
 
 /*************************************************************'
 
@@ -140,16 +141,15 @@ enkka = ennätys
 	--- ( : - O ) NEIN!!!!!!!!!!!!!!
 '**************************************************************/
 
-char *arg = NULL;
 
 const char *get_arg(int argc, char **argv, char flag)
 {
 	for (int i = 1; i < argc; i++)
 	{
 		if (argv[i][0] == flag)
-			return arg = argv[i] + 1;
+			return argv[i] + 1;
 	}
-	return arg = NULL;
+	return NULL;
 }
 
 #define GET_ARG(flag) get_arg(argc, argv, flag)
@@ -175,6 +175,7 @@ int main(int argc, char **argv)
 			"    L[NUM]  | Skip to [NUM] level (1...15).\n"
 			"            | When this option is selected highscore is not saved.\n"
 			"    r       | Enable replay more that prevents level progression\n"
+			"    S       | Disable ending splash screen\n"
 		);
 		return 0;
 	}
@@ -184,7 +185,15 @@ int main(int argc, char **argv)
 		set_sfx_off(GET_ARG('m') ? OPT_ALL_SOUND_OFF : OPT_SFX_OFF);
 	}
 
-	if (init_allegro())
+	if (GET_ARG('x'))
+	{
+		sscanf(GET_ARG('x'), "%d", &scaling);
+		if (!(scaling > 0 && scaling <= 8))
+			scaling = 1;
+		printf("Changed scaling to %d\n", scaling);
+	}
+
+	if (init_allegro(scaling))
 	{
 		printf("Init allegro failed");
 		return 0;
@@ -250,9 +259,9 @@ alku:
 	lives = 8;
 	level = 0;
 
-	if (GET_ARG('L') && arg[0])
+	if (GET_ARG('L'))
 	{
-		sscanf(arg, "%d", &level);
+		sscanf(GET_ARG('L'), "%d", &level);
 		level -= 1;
 		if (level >= 15 || level < 0)
 			level = 0;
@@ -282,7 +291,8 @@ alku:
 			screen_printf("+********************+\n* THANKS FOR PLAYING *\n*    CRYSTAL JANE    *\n+********************+\n");
 			screen_printf("Crystal Jane (c) Upr00ted tree software\nAll comments to: joonas1000@gmail.com\n");
 			FLIP;
-			wait_delay(60);
+			if (!GET_ARG('S'))
+				wait_delay(60);
 			exit(1);
 		}
 
@@ -711,10 +721,10 @@ void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char 
 		draw_box_gradient(x1, y1 + (y2 - y1) / 2, x2, y2, box_color_bottom, box_color_top, 0);
 		return;
 	}
-	x1 *= 3;
-	x2 *= 3;
-	y1 *= 3;
-	y2 *= 3;
+	x1 *= scaling;
+	x2 *= scaling;
+	y1 *= scaling;
+	y2 *= scaling;
 	unsigned char c0r, c0g, c0b;
 	unsigned char c1r, c1g, c1b;
 	al_unmap_rgb(ega_color(box_color_top), &c0r, &c0g, &c0b);
@@ -732,10 +742,10 @@ void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char 
 
 void draw_box(int x1, int y1, int x2, int y2, char box_color)
 {
-	x1 *= 3;
-	x2 *= 3;
-	y1 *= 3;
-	y2 *= 3;
+	x1 *= scaling;
+	x2 *= scaling;
+	y1 *= scaling;
+	y2 *= scaling;
 	al_draw_filled_rectangle(x1, y1, x2, y2, ega_color(box_color));
 }
 

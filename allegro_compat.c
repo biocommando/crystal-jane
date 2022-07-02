@@ -53,13 +53,17 @@ char keybuffer[ALLEGRO_KEY_MAX];
 
 int opt_sound_state = 0;
 
-int init_allegro()
+int screen_curs_x_offset = 0, screen_curs_y_offset = 0;
+
+int init_allegro(int scaling)
 {
-    memset(keybuffer, 0, sizeof(keybuffer));
     if (!al_init())
     {
         return 1;
     }
+    screen_curs_x_offset = (scaling * 320) / 2 - 160;
+    screen_curs_y_offset = (scaling * 200) / 2 - 100;
+    memset(keybuffer, 0, sizeof(keybuffer));
     al_install_mouse();
     al_install_keyboard();
     al_init_image_addon();
@@ -70,7 +74,7 @@ int init_allegro()
     al_set_new_display_refresh_rate(60);
     al_set_new_display_flags(ALLEGRO_OPENGL);
     font = al_create_builtin_font();
-    display = al_create_display(320 * 3, 200 * 3);
+    display = al_create_display(320 * scaling, 200 * scaling);
     if (!display)
     {
         return 1;
@@ -186,12 +190,12 @@ void wait_delay(int v)
     }
 }
 
-int screen_curs_x = 320, screen_curs_y = 200;
+int screen_curs_x = 0, screen_curs_y = 0;
 
 void clrscr()
 {
-    screen_curs_x = 320;
-    screen_curs_y = 200;
+    screen_curs_x = screen_curs_x_offset;
+    screen_curs_y = screen_curs_y_offset;
 }
 
 void stateful_draw_text(const char *s)
@@ -199,14 +203,14 @@ void stateful_draw_text(const char *s)
     char chrbuf[3] = {' ', 0};
     for (int i = 0; s[i]; i++)
     {
-        if (screen_curs_x == 320)
+        if (screen_curs_x == screen_curs_x_offset)
         {
-            al_draw_filled_rectangle(305, screen_curs_y - 2, 675, screen_curs_y + 18, al_map_rgb(128, 128, 128));
+            al_draw_filled_rectangle(screen_curs_x_offset - 15, screen_curs_y - 2, screen_curs_x_offset + 335, screen_curs_y + 18, al_map_rgb(128, 128, 128));
         }
         if (s[i] == '\n')
         {
             screen_curs_y += 12;
-            screen_curs_x = 320;
+            screen_curs_x = screen_curs_x_offset;
             continue;
         }
         chrbuf[0] = s[i];
