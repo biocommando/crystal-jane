@@ -33,14 +33,24 @@ void sprite_read(char kumpi);
 
 char *tulos, anim[2], lautalla, hyppy, aani = 1;
 
-#define SP_BAT_1 'B'
-#define SP_BAT_2 'b'
+#define SP_BAT(x) ((x) == 0 ? 'B' : 'b')
 #define SP_LEFT_FACING(x) ((x) == 0 ? '<' : '{')
 #define SP_RIGHT_FACING(x) ((x) == 0 ? '>' : '}')
 #define SP_DIAMOND 'D'
 
-char aijavas1[112], aijavas2[112], aijaoik1[112], aijaoik2[112], dia_spr[30], *buf, tiedluku[20];
-char bat1[55], bat2[55];
+#define SP_PLAYER_W 7
+#define SP_PLAYER_H 16
+
+#define SP_DIAMOND_W 5
+#define SP_DIAMOND_H 6
+
+#define SP_BAT_W 11
+#define SP_BAT_H 5
+
+#define SP_NUM_PX(sp) (SP_##sp ## _W * SP_##sp ## _H)
+
+char aijavas1[SP_NUM_PX(PLAYER)], aijavas2[SP_NUM_PX(PLAYER)], aijaoik1[SP_NUM_PX(PLAYER)], aijaoik2[SP_NUM_PX(PLAYER)], dia_spr[SP_NUM_PX(DIAMOND)], *buf, tiedluku[20];
+char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
 // 7*16 = 112   ;  5*6 = 30
 
 int y, x, lives, diamonds, aika, level, lasku, lauttax[50], lauttay[50], seinax[50], seinay[50], diamondx[50], diamondy[50], enkka;
@@ -105,6 +115,20 @@ enkka = ennätys
 
 extern char keybuffer[ALLEGRO_KEY_MAX];
 
+char *arg = NULL;
+
+const char *get_arg(int argc, char **argv, char flag)
+{
+	for (int i = 0; i < argc; i++)
+	{
+		if (argv[i][0] == flag)
+			return arg = argv[i] + 1;
+	}
+	return arg = NULL;
+}
+
+#define GET_ARG(flag) get_arg(argc, argv, flag)
+
 int main(int argc, char **argv)
 {
 	
@@ -114,7 +138,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	while (!keybuffer[SxSPACE])
+	while (!keybuffer[SxSPACE] && GET_ARG('w'))
 	{
 		wait_event();
 	}
@@ -169,33 +193,33 @@ alku:
 
 	sprite_read(SP_LEFT_FACING(0));
 	sprite_read(SP_LEFT_FACING(1));
-	sprite_read(SP_LEFT_FACING(0));
-	sprite_read(SP_LEFT_FACING(1));
+	sprite_read(SP_RIGHT_FACING(0));
+	sprite_read(SP_RIGHT_FACING(1));
 	sprite_read(SP_DIAMOND);
-	sprite_read(SP_BAT_1);
-	sprite_read(SP_BAT_2);
+	sprite_read(SP_BAT(0));
+	sprite_read(SP_BAT(1));
 
 	lives = 8;
 	level = 0;
 	
-	if (argc > 1)
+	if (GET_ARG('L') && arg[0])
 	{
-		sscanf(argv[1], "%d", &level);
+		sscanf(arg, "%d", &level);
 		level -= 1;
 		if (level >= 15 || level < 0)
 			level = 0;
 		printf("Start level changed to %d\n", level + 1);
 	}
 
-	anim[0] = SP_LEFT_FACING(0);
+	anim[0] = SP_RIGHT_FACING(0);
 	anim[1] = 0;
 	diamonds = 0;
 	score = 0;
 
 	piirra_boxi(0, 0, 320, 200, 0);
-	sprite_do(100, 80, 7, 16, SP_LEFT_FACING(0), 2);
-	sprite_do(140, 94, 5, 6, SP_DIAMOND, 2);
-	sprite_do(180, 75, 11, 5, SP_BAT_1, 2);
+	sprite_do(100, 80, SP_PLAYER_W, SP_PLAYER_H, SP_RIGHT_FACING(0), 2);
+	sprite_do(140, 94, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
+	sprite_do(180, 75, SP_BAT_W, SP_BAT_H, SP_BAT(0), 2);
 	clrscr();
 	screen_printf("Crystal Jane (c) Upr00ted tree software\n        MENU\n        1: PLAY\n        2: QUIT\n\n\n\n\n\n\n\n        HISCORE: %d\n", enkka);
 	FLIP;
@@ -243,19 +267,19 @@ alku:
 						anim[1] = 0;
 
 					if (anim[1] < 3)
-						anim[0] = SP_LEFT_FACING(0);
+						anim[0] = SP_RIGHT_FACING(0);
 					else
-						anim[0] = SP_LEFT_FACING(1);
-					sprite_do(x, 80, 7, 16, anim[0], 2);
-					sprite_do(250, 48, 7, 16, 'S', 4);
+						anim[0] = SP_RIGHT_FACING(1);
+					sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
+					sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
 
 					grtila('F');
 					viive(1);
 				}
 				clrscr();
 				piirra_boxi(0, 0, 320, 200, 0);
-				sprite_do(x, 80, 7, 16, anim[0], 2);
-				sprite_do(250, 48, 7, 16, 'S', 4);
+				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
+				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
 				screen_printf("JANE: NOW I HAVE COLLECTED\nALL THE CRYSTALS!\n[ENTER]\n");
 				FLIP;
 				while (!keybuffer[SxENTER])
@@ -266,8 +290,8 @@ alku:
 				viive(5);
 				clrscr();
 				piirra_boxi(0, 0, 320, 200, 0);
-				sprite_do(250, 48, 7, 16, 'S', 4);
-				sprite_do(x, 80, 7, 16, anim[0], 2);
+				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
+				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				screen_printf("STONEMAN: YES. I SEE.\nNOW YOU'LL BE FREE TO GO...\n[ENTER]\n");
 				FLIP;
 				while (!keybuffer[SxENTER])
@@ -278,8 +302,8 @@ alku:
 				viive(5);
 				clrscr();
 				piirra_boxi(0, 0, 320, 200, 0);
-				sprite_do(250, 48, 7, 16, 'S', 4);
-				sprite_do(x, 80, 7, 16, anim[0], 2);
+				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
+				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				score += lives * 1000;
 				screen_printf("CONGRATULATIONS!!!\nYOU HAVE COMPLETED CRYSTAL JANE!\n\nLIVES BONUS: %d\n"
 					"TOTAL SCORE: %d\n", lives * 1000, score);
@@ -440,22 +464,22 @@ alku:
 			anim[1]++;
 
 			if (anim[0] == SP_LEFT_FACING(0) || anim[0] == SP_LEFT_FACING(1))
-				anim[0] = SP_LEFT_FACING(0);
+				anim[0] = SP_RIGHT_FACING(0);
 
 			if (anim[1] == 3)
 			{
-				if (anim[0] == SP_LEFT_FACING(1))
+				if (anim[0] == SP_RIGHT_FACING(1))
 				{
-					anim[0] = SP_LEFT_FACING(0);
+					anim[0] = SP_RIGHT_FACING(0);
 				}
 				else
 				{
-					anim[0] = SP_LEFT_FACING(1);
+					anim[0] = SP_RIGHT_FACING(1);
 				}
 
 				if (get_sfx_pos() == -1)
 				{
-					set_sfx((anim[0] == SP_LEFT_FACING(1) ? 1 : 8), 0, 0, 0);
+					set_sfx((anim[0] == SP_RIGHT_FACING(1) ? 1 : 8), 0, 0, 0);
 				}
 
 				anim[1] = 0;
@@ -472,7 +496,7 @@ alku:
 		{
 			anim[1]++;
 
-			if (anim[0] == SP_LEFT_FACING(0) || anim[0] == SP_LEFT_FACING(1))
+			if (anim[0] == SP_RIGHT_FACING(0) || anim[0] == SP_RIGHT_FACING(1))
 				anim[0] = SP_LEFT_FACING(0);
 
 			if (anim[1] == 3)
@@ -530,7 +554,7 @@ alku:
 		for (lasku = 0; lasku < 10; lasku++)
 		{
 			if (diamondx[lasku] < 500)
-				sprite_do(diamondx[lasku], diamondy[lasku], 5, 6, SP_DIAMOND, 2);
+				sprite_do(diamondx[lasku], diamondy[lasku], SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
 		}
 
 		int ase_x = 999, ase_y = 999;
@@ -594,12 +618,12 @@ alku:
 				bat_x[lasku] += 1 - 2 * (rand() % 2);
 				bat_y[lasku] += 1 - 2 * (rand() % 2);
 			}
-			sprite_do(bat_x[lasku], bat_y[lasku], 11, 5, bat_x[lasku] % 2 ? SP_BAT_1 : SP_BAT_2, 2);
+			sprite_do(bat_x[lasku], bat_y[lasku], SP_BAT_W, SP_BAT_H, SP_BAT(bat_x[lasku] % 2), 2);
 		}
-		sprite_do(x, y - 2, 7, 16, anim[0], 2);
+		sprite_do(x, y - 2, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 
 		for (lasku = 0; lasku < lives; lasku++) // PIIRRä ELäMäT
-			sprite_do(lasku * 10, 1, 5, 6, SP_DIAMOND, 1);
+			sprite_do(lasku * 10, 1, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 1);
 
 		piirra_boxi(125, 1, 125 + (175 - aika / 2), 6, LIGHTRED); // PIIRRä AIKA
 
@@ -664,15 +688,15 @@ char *get_sprite(char kumpi)
 		return aijavas1;
 	if (kumpi == SP_LEFT_FACING(1))
 		return aijavas2;
-	if (kumpi == SP_LEFT_FACING(0))
+	if (kumpi == SP_RIGHT_FACING(0))
 		return aijaoik1;
-	if (kumpi == SP_LEFT_FACING(1))
+	if (kumpi == SP_RIGHT_FACING(1))
 		return aijaoik2;
 	if (kumpi == SP_DIAMOND)
 		return dia_spr;
-	if (kumpi == SP_BAT_1)
+	if (kumpi == SP_BAT(0))
 		return bat1;
-	if (kumpi == SP_BAT_2)
+	if (kumpi == SP_BAT(1))
 		return bat2;
 	return NULL;
 }
