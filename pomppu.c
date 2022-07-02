@@ -355,7 +355,7 @@ alku:
 			time_counter = 0;
 			level++;
 			jump = -1;
-			on_platform = 'K';
+			on_platform = 1;
 			x = 15;
 			y = 160;
 
@@ -400,7 +400,7 @@ alku:
 		if (jump > 0)
 		{
 			y = y - 5;
-			on_platform = 'E';
+			on_platform = 0;
 			if (get_sfx_pos() == -1)
 			{
 				set_sfx((20 + jump * 5), 0, 0, 0);
@@ -410,23 +410,23 @@ alku:
 
 		if (jump < 0)
 		{
-			on_platform = 'E';
+			on_platform = 0;
 			for (count = 0; count < platform_count; count++)
 			{
 				if (platform_x[count] + 50 > x && platform_x[count] - 14 < x && platform_y[count] + 1 < y + 32 && platform_y[count] + 4 > y + 32)
 				{
-					on_platform = 'K';
+					on_platform = 1;
 					jump = -1;
 				}
 			}
-			if (on_platform == 'E' && y < 159)
+			if (!on_platform && y < 159)
 			{
 				y = y + 3;
 				jump = -1;
 			}
 			else
 			{
-				on_platform = 'K';
+				on_platform = 1;
 				jump = -1;
 			}
 		}
@@ -455,7 +455,7 @@ alku:
 		{
 			x = 15;
 			y = 160;
-			on_platform = 'K';
+			on_platform = 1;
 			jump = -1;
 		}
 
@@ -524,7 +524,7 @@ alku:
 			}
 		}
 
-		if (keybuffer[ALLEGRO_KEY_UP] && on_platform == 'K') // HYPPää!
+		if (keybuffer[ALLEGRO_KEY_UP] && on_platform) // HYPPää!
 			jump = 6;
 		
 		if (keybuffer[ALLEGRO_KEY_DOWN] && weapon <= -20)
@@ -593,7 +593,7 @@ alku:
 				bat_x[count] = 500;
 				x = 15;
 				y = 160;
-				on_platform = 'K';
+				on_platform = 1;
 				jump = -1;
 				draw_box(0, 0, 320, 200, BRIGHT_RED);
 				set_sfx(20, 15, 10, 5);
