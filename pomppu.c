@@ -24,9 +24,8 @@ void read_game_data_file_until(FILE *f, const char *title, char id)
 }
 
 void piirra_boxi(int x1, int y1, int x2, int y2, char boxvari);
-void grtila(int tila);
 
-#define FLIP grtila('F')
+#define FLIP al_flip_display()
 
 void sprite_do(int _x, int _y, int aluex, int aluey, char kumpi, char lahella);
 void sprite_read(char kumpi);
@@ -273,7 +272,7 @@ alku:
 					sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 					sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
 
-					grtila('F');
+					al_flip_display();
 					viive(1);
 				}
 				clrscr();
@@ -637,7 +636,7 @@ alku:
 		{
 			set_sfx(10 * aani, 0, 0, 0);
 		}
-		grtila('F');
+		al_flip_display();
 		viive(1);
 	}
 	piirra_boxi(0, 0, 320, 200, 0);
@@ -650,27 +649,6 @@ alku:
 	}
 	set_sfx(20, 30, 40, 50);
 	goto alku;
-}
-
-void grtila(int tila)
-{
-	/*if (tila == 1)
-		textmode(0x13);
-	if (tila == 0)
-		textmode(0x3);
-	if (tila == 'A')
-	{
-
-		buf = (char *)malloc(64000); // Alustetaan puskuri
-		if (buf == NULL)
-		{
-			screen_printf("Not enought conventional memory!\n");
-			resetkeyhandler();
-			exit(1);
-		}
-	}*/
-	if (tila == 'F')
-		al_flip_display();
 }
 
 void piirra_boxi(int x1, int y1, int x2, int y2, char boxvari)
