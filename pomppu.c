@@ -184,6 +184,7 @@ int main(int argc, char **argv)
 		"LEFT / RIGHT: Move left / right\n"
 		"RCTRL + LEFT / RIGHT: Sprint left / right\n"
 		"UP: Jump\n"
+		"RSHIFT: High jump (once in level)\n"
 		"DOWN: Use the bat-killing morningstar\n"
 		"P: Pause\n\n"
 		"Your mission is to collect all\nthe lifecrystals on 15 levels.\n\n"
@@ -267,7 +268,7 @@ game_logic_start:
 	int weapon = 0;
 	int initial_frame_counter = 0;
 	int bats_killed = 0;
-	int sprint;
+	int sprint, high_jump;
 	while (lives > 0 && !keybuffer[ALLEGRO_KEY_ESCAPE])
 	{
 		if (diamonds == 0)
@@ -384,6 +385,7 @@ game_logic_start:
 			y = 160;
 			bats_killed = 0;
 			sprint = 0;
+			high_jump = 1;
 
 			platform_count = wall_count = diamond_count = bat_count = 0;
 			memset(diamond_anim, 0, sizeof(diamond_anim));
@@ -435,7 +437,6 @@ game_logic_start:
 			}
 		}
 		jump--;
-
 		if (jump < 0)
 		{
 			on_platform = 0;
@@ -445,6 +446,8 @@ game_logic_start:
 				{
 					on_platform = 1;
 					jump = -1;
+					y = platform_y[count] - 30;
+					break;
 				}
 			}
 			if (!on_platform && y < 159)
@@ -588,6 +591,11 @@ game_logic_start:
 
 		if (keybuffer[ALLEGRO_KEY_UP] && on_platform) // HYPPää!
 			jump = 6;
+		if (high_jump && keybuffer[ALLEGRO_KEY_RSHIFT] && on_platform)
+		{
+			high_jump = 0;
+			jump = 10;
+		}
 
 		if (keybuffer[ALLEGRO_KEY_DOWN] && weapon <= -20)
 		{
@@ -623,7 +631,8 @@ game_logic_start:
 		int weap_x = 999, weap_y = 999;
 		if (weapon > 0)
 		{
-			float vx = cosf(3.14159f / 10.0f * weapon), vy = sinf(3.14159f / 10.0f * weapon);
+			float vx, vy;
+			vx = cosf(3.14159f / 10.0f * weapon), vy = sinf(3.14159f / 10.0f * weapon);
 
 			for (count = 0; count < 5; count++)
 			{
