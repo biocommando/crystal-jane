@@ -1,5 +1,6 @@
 #include "allegro_compat.h"
 #include "synth.h"
+#include "build_info.h"
 
 #include <stdio.h>
 
@@ -73,7 +74,7 @@ int init_allegro(int scaling, int opt_audio_buf_size)
     al_init_primitives_addon();
     al_init_font_addon();
 
-    al_set_new_window_title("Crysal Jane");
+    al_set_new_window_title("Crystal Jane - v" VERSION " - build " BUILD_DATE);
     al_set_new_display_refresh_rate(60);
     al_set_new_display_flags(ALLEGRO_OPENGL);
     font = al_create_builtin_font();
