@@ -178,12 +178,16 @@ int main(int argc, char **argv)
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
 	clear_screen_for_text();
-	screen_printf("You'll be able to control Jane with\nLEFT and RIGHT arrows\n");
-	screen_printf("and Jane jumps if you press UP.\nJane can also go back to the beginning\nof a level by pressing ENTER.\n"
-				  "Beware the bats! You can use your whip with\n"
-				  "DOWN arrow to knock them out.\n"
-				  "\nPRESS P ANYTIME TO PAUSE GAME.\nYour mission is to get");
-	screen_printf(" the lifecrystals\non 15 levels.\n\nPRESS ENTER\n");
+
+	screen_printf(
+		"Game controls:\n--------------\n"
+		"LEFT / RIGHT: Move left / right\n"
+		"RCTRL + LEFT / RIGHT: Sprint left / right\n"
+		"UP: Jump\n"
+		"DOWN: Use the bat-killing morningstar\n"
+		"P: Pause\n\n"
+		"Your mission is to collect all\nthe lifecrystals on 15 levels.\n\n"
+		"PRESS ENTER\n");
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
@@ -263,6 +267,7 @@ game_logic_start:
 	int weapon = 0;
 	int initial_frame_counter = 0;
 	int bats_killed = 0;
+	int sprint;
 	while (lives > 0 && !keybuffer[ALLEGRO_KEY_ESCAPE])
 	{
 		if (diamonds == 0)
@@ -378,6 +383,7 @@ game_logic_start:
 			x = 15;
 			y = 160;
 			bats_killed = 0;
+			sprint = 0;
 
 			platform_count = wall_count = diamond_count = bat_count = 0;
 			memset(diamond_anim, 0, sizeof(diamond_anim));
@@ -482,8 +488,25 @@ game_logic_start:
 			jump = -1;
 			set_sfx(10, 20, 30, 40);
 		}
+		int moving = 0;
 
-		if (keybuffer[ALLEGRO_KEY_RIGHT] && x < 305) // LIIKU OIKEAAN
+		if (keybuffer[ALLEGRO_KEY_RIGHT] && x < 305 && sprint >= 0) // LIIKU OIKEAAN
+		{
+			moving = 1;
+			if (keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
+				sprint = 10;
+		}
+		if (sprint > 0)
+		{
+			if (x < 305)
+			{
+				moving = sprint > 5 ? 3 : 2;
+				sprint--;
+			}
+			else
+				sprint = 0;
+		}
+		while (moving-- > 0)
 		{
 			anim[1]++;
 
@@ -515,8 +538,23 @@ game_logic_start:
 					x = x - 3;
 			}
 		}
-
-		if (keybuffer[ALLEGRO_KEY_LEFT] && x > 5) // LIIKU VASEMPAAN
+		if (keybuffer[ALLEGRO_KEY_LEFT] && x > 5 && sprint <= 0) // LIIKU VASEMPAAN
+		{
+			moving = 1;
+			if (keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
+				sprint = -10;
+		}
+		if (sprint < 0)
+		{
+			if (x > 5)
+			{
+				moving = sprint < -5 ? 3 : 2;
+				sprint++;
+			}
+			else
+				sprint = 0;
+		}
+		while (moving-- > 0)
 		{
 			anim[1]++;
 
