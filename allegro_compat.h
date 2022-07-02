@@ -24,6 +24,7 @@
 #define BRIGHT_YELLOW 14
 #define BRIGHT_WHITE 15
 #define SKIN 100
+#define TRANSPARENT 0x7F
 
 #define SYNTH_FLAGS(volume, envelope, synth_idx) \
     (((volume) | (((envelope) << 4) & 0xF0)) << (synth_idx * 8))
@@ -51,7 +52,7 @@ int get_frame_counter();
 
 void set_sfx_off(int state);
 
-int init_allegro(int scale);
+int init_allegro(int scale, int audio_buf_size);
 int wait_event();
 void wait_delay(int v);
 

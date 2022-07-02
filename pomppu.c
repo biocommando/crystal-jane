@@ -120,6 +120,7 @@ int main(int argc, char **argv)
 			"            | When this option is selected highscore is not saved.\n"
 			"    r       | Enable replay more that prevents level progression\n"
 			"    S       | Disable ending splash screen\n"
+			"    a[SIZE] | Audio buffer size (2^n), default 1024\n"
 		);
 		return 0;
 	}
@@ -137,7 +138,15 @@ int main(int argc, char **argv)
 		printf("Changed scaling to %d\n", scaling);
 	}
 
-	if (init_allegro(scaling))
+	int audio_buf_size_override = 0;
+
+	if (GET_ARG('a'))
+	{
+		sscanf(GET_ARG('a'), "%d", &audio_buf_size_override);
+		printf("Using audio buffer size %d\n", audio_buf_size_override);
+	}
+
+	if (init_allegro(scaling, audio_buf_size_override))
 	{
 		printf("Init allegro failed");
 		return 0;
@@ -629,7 +638,7 @@ game_logic_start:
 		for (count = 0; count < lives; count++) // PIIRRä ELäMäT
 			sprite_do(count * 10, 1, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 1);
 
-		draw_box(125, 1, 125 + (175 - time_counter / 2), 6, BRIGHT_RED); // PIIRRä AIKA
+		draw_box_gradient(125, 1, 125 + (175 - time_counter / 2), 6, RED, BRIGHT_RED, 1); // PIIRRä AIKA
 
 		time_counter++;
 		if (time_counter > 350)
@@ -724,7 +733,7 @@ void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mu
 	{
 		for (_123x = 0; _123x < area_x * zoom_mult; _123x = _123x + zoom_mult)
 		{
-			if (sprite_buf[counter] != 'n')
+			if (sprite_buf[counter] != TRANSPARENT)
 				draw_box(_x + _123x, _y + _123y, _x + _123x + zoom_mult, _y + _123y + zoom_mult, sprite_buf[counter]);
 			counter++;
 		}
@@ -747,11 +756,12 @@ void sprite_read(char sprite)
 		if (read_result != 10)
 		{
 			if (read_result == ' ')
-				read_result = 'n' + 47;
+				sprite_buf[counter] = TRANSPARENT;
 			// Skin color was done using some weird hack, let's do less weird hack
-			if (read_result == '*')
-				read_result = SKIN + 47;
-			sprite_buf[counter] = read_result - 47;
+			else if (read_result == '*')
+				sprite_buf[counter] = SKIN;
+			else
+				sprite_buf[counter] = read_result - 47;
 
 			counter++;
 		}
