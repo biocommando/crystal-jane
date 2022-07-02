@@ -541,7 +541,7 @@ game_logic_start:
 				anim[1] = 0;
 			}
 			x = x - 3;
-			for (count = 0; count < 10; count++) // OSUUKO SEINääN
+			for (count = 0; count < wall_count; count++) // OSUUKO SEINääN
 			{
 				if (wall_x[count] + 5 > x && wall_x[count] < x && wall_y[count] < y + 30 && wall_y[count] + 30 > y)
 					x = x + 3;
@@ -569,7 +569,7 @@ game_logic_start:
 			draw_box_gradient(wall_x[count], wall_y[count], wall_x[count] + 5, wall_y[count] + 30, BROWN, BRIGHT_YELLOW, 1);
 		}
 
-		for (count = 0; count < 10; count++)
+		for (count = 0; count < diamond_count; count++)
 		{
 			if (diamond_anim[count] < 10)
 			{
