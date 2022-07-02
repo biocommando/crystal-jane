@@ -253,6 +253,7 @@ alku:
 
 	int weapon = 0;
 	int initial_frame_counter = 0;
+	int bats_killed = 0;
 	while (lives > 0 && !keybuffer[ALLEGRO_KEY_ESCAPE])
 	{
 		if (diamonds == 0)
@@ -260,21 +261,23 @@ alku:
 			srand(1234);
 			weapon = 0;
 			int beat_time_frames = get_frame_counter() - initial_frame_counter;
-			int bonus = 30 * 20 - beat_time_frames;
+			int time_bonus = 30 * 20 - beat_time_frames;
 			if (level != 0)
 			{
 				clear_screen_for_text();
-				if (bonus < 0)
-					bonus = 0;
-				score += bonus;
+				if (time_bonus < 0)
+					time_bonus = 0;
+				score += time_bonus;
+				score += bats_killed * 50;
 				screen_printf(
 					"         LEVEL %d COMPLETE!\n\n"
-					"         COMPLETE TIME: %.1f SEC\n"
-					"         TIME BONUS   : %d\n\n"
-					"         LIVES LEFT   : %d\n\n"
-					"         TOTAL SCORE  : %d\n\n\n"
+					"         COMPLETE TIME    : %.1f SEC\n"
+					"         TIME BONUS       : %d\n\n"
+					"         BATS KILLED BONUS: %d * 50 = %d\n\n"
+					"         LIVES LEFT       : %d\n\n"
+					"         TOTAL SCORE      : %d\n\n\n"
 					"         PRESS ENTER",
-					level + 1, beat_time_frames / 20.0f, bonus, lives, score);
+					level + 1, beat_time_frames / 20.0f, time_bonus, bats_killed, bats_killed * 50, lives, score);
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 			}
@@ -558,19 +561,23 @@ alku:
 				sprite_do(diamond_x[count], diamond_y[count], SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
 		}
 
-		int ase_x = 999, ase_y = 999;
+		int weap_x = 999, weap_y = 999;
 		if (weapon > 0)
 		{
 			float vx = cosf(3.14159f / 10.0f * weapon), vy = sinf(3.14159f / 10.0f * weapon);
 
 			for (count = 0; count < 5; count++)
 			{
-				ase_x = vx * 10 * count + x + 5;
-				ase_y = vy * 10 * count + y + 20;
+				weap_x = vx * 10 * count + x + 5;
+				weap_y = vy * 10 * count + y + 20;
 				if (count < 4)
-					draw_box(ase_x - 1, ase_y - 1, ase_x + 1, ase_y + 1, 0);
+				{
+					draw_box(weap_x - 1, weap_y - 1, weap_x + 1, weap_y + 1, BLACK);
+				}
 				else
-					draw_box(ase_x - 4, ase_y - 4, ase_x + 4, ase_y + 4, 0);
+				{
+					draw_box(weap_x - 4, weap_y - 4, weap_x + 4, weap_y + 4, BLACK);
+				}
 			}
 		}
 		weapon--;
@@ -579,8 +586,9 @@ alku:
 		{
 			if (bat_x[count] >= 500)
 				continue;
-			if (bat_x[count] + 27 > ase_x && bat_x[count] - 5 < ase_x && bat_y[count] - 4 < ase_y && bat_y[count] + 13 > ase_y)
+			if (bat_x[count] + 27 > weap_x && bat_x[count] - 5 < weap_x && bat_y[count] - 4 < weap_y && bat_y[count] + 13 > weap_y)
 			{
+				bats_killed++;
 				time_counter -= 20;
 				bat_x[count] = 500;
 				draw_box(0, 0, 320, 200, BRIGHT_GREEN);
