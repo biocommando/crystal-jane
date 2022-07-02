@@ -34,9 +34,6 @@
 #define Sx2 ALLEGRO_KEY_2
 #define SxP ALLEGRO_KEY_P
 #define SxSPACE ALLEGRO_KEY_SPACE
-#define SxRIGHT ALLEGRO_KEY_RIGHT
-#define SxLEFT ALLEGRO_KEY_LEFT
-#define SxCTRL ALLEGRO_KEY_RCTRL
 
 #define SYNTH_FLAGS(volume, envelope, synth_idx) \
     (((volume) | (((envelope) << 4) & 0xF0)) << (synth_idx * 8))

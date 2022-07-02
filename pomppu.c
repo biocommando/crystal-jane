@@ -159,10 +159,10 @@ int main(int argc, char **argv)
 	viive(5);
 	clrscr();
 	piirra_boxi(0, 0, 320, 200, 0);
-	screen_printf("You'll be able to control Jane with\n<- and -> arrows\n");
-	screen_printf("and Jane jumps if you press R-CONTROL.\nJane can also go back to the beginning\nof a level by pressing ENTER.\n"
+	screen_printf("You'll be able to control Jane with\nLEFT and RIGHT arrows\n");
+	screen_printf("and Jane jumps if you press UP.\nJane can also go back to the beginning\nof a level by pressing ENTER.\n"
 		"Beware the bats! You can use your whip with\n"
-		"R-SHIFT to knock them out.\n"
+		"DOWN arrow to knock them out.\n"
 		"\nPRESS P ANYTIME TO PAUSE GAME.\nYour mission is to get");
 	screen_printf(" the lifecrystals\non 15 levels.\n\nPRESS ENTER\n");
 	FLIP;
@@ -459,7 +459,7 @@ alku:
 			hyppy = -1;
 		}
 
-		if (keybuffer[SxRIGHT] && x < 305) // LIIKU OIKEAAN
+		if (keybuffer[ALLEGRO_KEY_RIGHT] && x < 305) // LIIKU OIKEAAN
 		{
 			anim[1]++;
 
@@ -492,7 +492,7 @@ alku:
 			}
 		}
 
-		if (keybuffer[SxLEFT] && x > 5) // LIIKU VASEMPAAN
+		if (keybuffer[ALLEGRO_KEY_LEFT] && x > 5) // LIIKU VASEMPAAN
 		{
 			anim[1]++;
 
@@ -524,10 +524,10 @@ alku:
 			}
 		}
 
-		if (keybuffer[SxCTRL] && lautalla == 'K') // HYPPää!
+		if (keybuffer[ALLEGRO_KEY_UP] && lautalla == 'K') // HYPPää!
 			hyppy = 6;
 		
-		if (keybuffer[ALLEGRO_KEY_RSHIFT] && ase <= -20)
+		if (keybuffer[ALLEGRO_KEY_DOWN] && ase <= -20)
 		{
 			ase = 20;
 			set_sfx(20, 19, 18, 0);
