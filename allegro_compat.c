@@ -156,7 +156,7 @@ int wait_event()
     return 2;
 }
 
-void viive(int v)
+void wait_delay(int v)
 {
     while (v > 0)
     {

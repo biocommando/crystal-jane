@@ -47,7 +47,7 @@ ALLEGRO_COLOR ega_color(char col);
 
 int init_allegro();
 int wait_event();
-void viive(int v);
+void wait_delay(int v);
 
 void sound(int freq);
 void clrscr();
