@@ -78,7 +78,7 @@ char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_N
 char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
 // 7*16 = 112   ;  5*6 = 30
 
-int y, x, lives, diamonds, time_counter, level, count, platform_x[50], platform_y[50], wall_x[50], wall_y[50], diamond_x[50], diamond_y[50], hiscore;
+int y, x, lives, diamonds, time_counter, level, count, platform_x[50], platform_y[50], wall_x[50], wall_y[50], diamond_x[50], diamond_y[50], hiscore = 0;
 int score = 0;
 int bat_x[50], bat_y[50];
 int platform_count, wall_count, diamond_count, bat_count;
@@ -203,8 +203,15 @@ alku:
 
 	{
 		FILE *fhscore = fopen("hiscore.jan", "r");
-		fscanf(fhscore, "%d", &hiscore);
-		fclose(fhscore);
+		if (fhscore)
+		{
+			fscanf(fhscore, "%d", &hiscore);
+			fclose(fhscore);
+		}
+		if (hiscore & 0xFE000000)
+			hiscore ^= 0xFEFEFEFE;
+		else
+			hiscore = 0;
 	}
 
 	sprite_read(SP_LEFT_FACING(0));
@@ -337,7 +344,7 @@ alku:
 				if (score > hiscore && !GET_ARG('L')) // Hiscore logic disabled if level jump is used
 				{
 					FILE *fhscore = fopen("hiscore.jan", "w");
-					fprintf(fhscore, "%d", score);
+					fprintf(fhscore, "%d", score ^ 0xFEFEFEFE);
 					fclose(fhscore);
 					screen_printf("NEW HISCORE!\n");
 				}
