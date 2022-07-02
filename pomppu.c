@@ -23,7 +23,7 @@ void read_game_data_file_until(FILE *f, const char *title, char id)
 	}
 }
 
-void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom);
+void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom, int symmetric);
 void draw_box(int x1, int y1, int x2, int y2, char box_color);
 
 void wait_key_press(int key)
@@ -45,7 +45,7 @@ void clear_screen_to_color(int col)
 
 void clear_screen_for_text()
 {
-	draw_box_gradient(0, 0, 320, 200, BLUE, BLACK);
+	draw_box_gradient(0, 0, 320, 200, BLUE, BLACK, 0);
 	// clear_screen_to_color(0);
 	clrscr();
 }
@@ -542,12 +542,14 @@ alku:
 
 		//*LAUTAT + MUUT*//
 
-		draw_box(0, 190, 320, 200, YELLOW);
-		for (count = 0; count < 20; count++)
+		draw_box_gradient(0, 190, 320, 200, BROWN, YELLOW, 0);
+		for (count = 0; count < platform_count; count++)
 		{
-			draw_box(platform_x[count] - 1, platform_y[count], platform_x[count] + 50, platform_y[count] + 5, YELLOW);
-			if (count < 10)
-				draw_box(wall_x[count], wall_y[count], wall_x[count] + 5, wall_y[count] + 30, YELLOW);
+			draw_box_gradient(platform_x[count] - 1, platform_y[count], platform_x[count] + 50, platform_y[count] + 6, BROWN, YELLOW, 1);
+		}
+		for (count = 0; count < wall_count; count++)
+		{
+			draw_box_gradient(wall_x[count], wall_y[count], wall_x[count] + 5, wall_y[count] + 30, BROWN, YELLOW, 1);
 		}
 
 		for (count = 0; count < 10; count++)
@@ -652,8 +654,14 @@ alku:
 	temp = temp > 255 ? 255 : (temp < 0 ? 0 : temp); \
 	unsigned char out = temp
 
-void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom)
+void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom, int symmetric)
 {
+	if (symmetric)
+	{
+		draw_box_gradient(x1, y1, x2, y2 - (y2 - y1) / 2, box_color_top, box_color_bottom, 0);
+		draw_box_gradient(x1, y1 + (y2 - y1) / 2, x2, y2, box_color_bottom, box_color_top, 0);
+		return;
+	}
 	x1 *= 3;
 	x2 *= 3;
 	y1 *= 3;
