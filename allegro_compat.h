@@ -45,6 +45,8 @@
 
 ALLEGRO_COLOR ega_color(char col);
 
+int get_frame_counter();
+
 int init_allegro();
 int wait_event();
 void wait_delay(int v);

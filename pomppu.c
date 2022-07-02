@@ -6,10 +6,12 @@
 
 #define GAME_DATA_FILE "gdat.dat"
 
+extern char keybuffer[ALLEGRO_KEY_MAX];
+
 void read_game_data_file_until(FILE *f, const char *title, char id)
 {
 	fseek(f, 0, SEEK_SET);
-	while(!feof(f))
+	while (!feof(f))
 	{
 		char b[100], rtitle[100] = "", rid = 0;
 		fgets(b, 100, f);
@@ -21,7 +23,32 @@ void read_game_data_file_until(FILE *f, const char *title, char id)
 	}
 }
 
+void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom);
 void draw_box(int x1, int y1, int x2, int y2, char box_color);
+
+void wait_key_press(int key)
+{
+	while (!keybuffer[key])
+	{
+		wait_event();
+	}
+	while (keybuffer[key])
+	{
+		wait_event();
+	}
+}
+
+void clear_screen_to_color(int col)
+{
+	draw_box(0, 0, 320, 200, col);
+}
+
+void clear_screen_for_text()
+{
+	draw_box_gradient(0, 0, 320, 200, BLUE, BLACK);
+	// clear_screen_to_color(0);
+	clrscr();
+}
 
 #define FLIP al_flip_display()
 
@@ -45,7 +72,7 @@ char *result, anim[2], on_platform, jump, sound_state = 1;
 #define SP_BAT_W 11
 #define SP_BAT_H 5
 
-#define SP_NUM_PX(sp) (SP_##sp ## _W * SP_##sp ## _H)
+#define SP_NUM_PX(sp) (SP_##sp##_W * SP_##sp##_H)
 
 char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_NUM_PX(PLAYER)], guy_right2[SP_NUM_PX(PLAYER)], dia_spr[SP_NUM_PX(DIAMOND)], *buf, file_read_buf[20];
 char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
@@ -111,13 +138,11 @@ enkka = ennätys
 	--- ( : - O ) NEIN!!!!!!!!!!!!!!
 '**************************************************************/
 
-extern char keybuffer[ALLEGRO_KEY_MAX];
-
 char *arg = NULL;
 
 const char *get_arg(int argc, char **argv, char flag)
 {
-	for (int i = 0; i < argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
 		if (argv[i][0] == flag)
 			return arg = argv[i] + 1;
@@ -129,57 +154,42 @@ const char *get_arg(int argc, char **argv, char flag)
 
 int main(int argc, char **argv)
 {
-	
+
 	if (init_allegro())
 	{
 		printf("Init allegro failed");
 		return 0;
 	}
 
-	while (!keybuffer[ALLEGRO_KEY_SPACE] && GET_ARG('w'))
+	if (GET_ARG('w'))
 	{
-		wait_event();
+		wait_key_press(ALLEGRO_KEY_ENTER);
 	}
 	synth_init(SYNTH_SETTINGS);
 	extern const char my_synth_sequence[2838];
 	set_sequence(my_synth_sequence, 2838);
-	
-	clrscr();
+
+	clear_screen_for_text();
 	screen_printf("HI!\nWelcome to Crystal Jane\n\nStory:\nJane has been ten years in a prison\n");
 	screen_printf("of a cruel stoneman.\nOne day stoneman says to free Jane\nif she collects all");
 	screen_printf(" the lifecrystals\non that planet...\n\nPRESS ENTER\n");
 	FLIP;
-	while (!keybuffer[ALLEGRO_KEY_ENTER])
-	{
-		wait_event();
-	}
+	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
-	wait_delay(5);
-	clrscr();
-	draw_box(0, 0, 320, 200, 0);
+	clear_screen_for_text();
 	screen_printf("You'll be able to control Jane with\nLEFT and RIGHT arrows\n");
 	screen_printf("and Jane jumps if you press UP.\nJane can also go back to the beginning\nof a level by pressing ENTER.\n"
-		"Beware the bats! You can use your whip with\n"
-		"DOWN arrow to knock them out.\n"
-		"\nPRESS P ANYTIME TO PAUSE GAME.\nYour mission is to get");
+				  "Beware the bats! You can use your whip with\n"
+				  "DOWN arrow to knock them out.\n"
+				  "\nPRESS P ANYTIME TO PAUSE GAME.\nYour mission is to get");
 	screen_printf(" the lifecrystals\non 15 levels.\n\nPRESS ENTER\n");
 	FLIP;
-	while (!keybuffer[ALLEGRO_KEY_ENTER])
-	{
-		wait_event();
-	}
+	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
-	wait_delay(5);
-	clrscr();
-	draw_box(0, 0, 320, 200, 0);
+	clear_screen_for_text();
 	screen_printf("You can see your lives in the\nupper left corner\nand time running next to it...\nBest of luck for you!\n\nPRESS ENTER\n");
 	FLIP;
-	while (!keybuffer[ALLEGRO_KEY_ENTER])
-	{
-		wait_event();
-	}
-	wait_delay(5);
-
+	wait_key_press(ALLEGRO_KEY_ENTER);
 alku:
 	screen_printf("LOADING SPRITES...\n");
 
@@ -199,7 +209,7 @@ alku:
 
 	lives = 8;
 	level = 0;
-	
+
 	if (GET_ARG('L') && arg[0])
 	{
 		sscanf(arg, "%d", &level);
@@ -214,11 +224,10 @@ alku:
 	diamonds = 0;
 	score = 0;
 
-	draw_box(0, 0, 320, 200, 0);
-	sprite_do(100, 80, SP_PLAYER_W, SP_PLAYER_H, SP_RIGHT_FACING(0), 2);
-	sprite_do(140, 94, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
-	sprite_do(180, 75, SP_BAT_W, SP_BAT_H, SP_BAT(0), 2);
-	clrscr();
+	clear_screen_for_text();
+	sprite_do(110, 140, SP_PLAYER_W, SP_PLAYER_H, SP_RIGHT_FACING(0), 2);
+	sprite_do(150, 154, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
+	sprite_do(190, 135, SP_BAT_W, SP_BAT_H, SP_BAT(0), 2);
 	screen_printf("Crystal Jane (c) Upr00ted tree software\n        MENU\n       UP: PLAY\n     DOWN: QUIT\n\n\n\n\n\n\n\n        HISCORE: %d\n", hiscore);
 	FLIP;
 	set_sfx(20, 30, 40, 50);
@@ -228,8 +237,7 @@ alku:
 		if (keybuffer[ALLEGRO_KEY_DOWN])
 		{
 			synth_init(SYNTH_SETTINGS);
-			clrscr();
-			draw_box(0, 0, 320, 200, 0);
+			clear_screen_for_text();
 
 			screen_printf("+********************+\n* THANKS FOR PLAYING *\n*    CRYSTAL JANE    *\n+********************+\n");
 			screen_printf("Crystal Jane (c) Upr00ted tree software\nAll comments to: joonas1000@gmail.com\n");
@@ -244,16 +252,35 @@ alku:
 	set_sfx(70, 10, 50, 30);
 
 	int weapon = 0;
+	int initial_frame_counter = 0;
 	while (lives > 0 && !keybuffer[ALLEGRO_KEY_ESCAPE])
 	{
 		if (diamonds == 0)
 		{
 			srand(1234);
 			weapon = 0;
-			draw_box(0, 0, 320, 200, 0);
-			clrscr();
+			int beat_time_frames = get_frame_counter() - initial_frame_counter;
+			int bonus = 30 * 20 - beat_time_frames;
+			if (level != 0)
+			{
+				clear_screen_for_text();
+				if (bonus < 0)
+					bonus = 0;
+				score += bonus;
+				screen_printf(
+					"         LEVEL %d COMPLETE!\n\n"
+					"         COMPLETE TIME: %.1f SEC\n"
+					"         TIME BONUS   : %d\n\n"
+					"         LIVES LEFT   : %d\n\n"
+					"         TOTAL SCORE  : %d\n\n\n"
+					"         PRESS ENTER",
+					level + 1, beat_time_frames / 20.0f, bonus, lives, score);
+				FLIP;
+				wait_key_press(ALLEGRO_KEY_ENTER);
+			}
 			if (level == 15)
 			{
+				clear_screen_for_text();
 				anim[1] = 0;
 
 				sprite_read(SP_STONEMAN);
@@ -274,39 +301,29 @@ alku:
 					al_flip_display();
 					wait_delay(1);
 				}
-				clrscr();
-				draw_box(0, 0, 320, 200, 0);
+				clear_screen_for_text();
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				screen_printf("JANE: NOW I HAVE COLLECTED\nALL THE CRYSTALS!\n[ENTER]\n");
 				FLIP;
-				while (!keybuffer[ALLEGRO_KEY_ENTER])
-				{
-					wait_event();
-				}
+				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
-				wait_delay(5);
-				clrscr();
-				draw_box(0, 0, 320, 200, 0);
+				clear_screen_for_text();
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				screen_printf("STONEMAN: YES. I SEE.\nNOW YOU'LL BE FREE TO GO...\n[ENTER]\n");
 				FLIP;
-				while (!keybuffer[ALLEGRO_KEY_ENTER])
-				{
-					wait_event();
-				}
+				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
-				wait_delay(5);
-				clrscr();
-				draw_box(0, 0, 320, 200, 0);
+				clear_screen_for_text();
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				score += lives * 1000;
 				screen_printf("CONGRATULATIONS!!!\nYOU HAVE COMPLETED CRYSTAL JANE!\n\nLIVES BONUS: %d\n"
-					"TOTAL SCORE: %d\n", lives * 1000, score);
+							  "TOTAL SCORE: %d\n",
+							  lives * 1000, score);
 
-				if (score > hiscore)
+				if (score > hiscore && !GET_ARG('L')) // Hiscore logic disabled if level jump is used
 				{
 					FILE *fhscore = fopen("hiscore.jan", "w");
 					fprintf(fhscore, "%d", score);
@@ -317,10 +334,7 @@ alku:
 					screen_printf("HISCORE: %d\n", hiscore);
 
 				FLIP;
-				while (!keybuffer[ALLEGRO_KEY_ENTER])
-				{
-					wait_event();
-				}
+				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
 				wait_delay(5);
 				goto alku;
@@ -331,25 +345,19 @@ alku:
 
 			if (level != 15)
 			{
-				if (level != 0)
-				{
-					int bonus = 350 - time_counter;
-					score += bonus * 2;
-				}
-				screen_printf("\n\n\n\n         GET READY FOR ACTION!\n\n\n                 LEVEL:\n");
+				clear_screen_for_text();
+				screen_printf("         GET READY FOR ACTION!\n\n\n                 LEVEL:\n");
 
 				char level_name[32];
 				fgets(level_name, 32, game_data);
 
-				screen_printf("         %d: %s\n\n\n\nPress enter...\n", level + 1, level_name);
+				screen_printf("         %d: %s\n\n\n\n         PRESS ENTER\n", level + 1, level_name);
 				FLIP;
-				while (!keybuffer[ALLEGRO_KEY_ENTER])
-				{
-					wait_event();
-				}
+				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
 			}
 
+			initial_frame_counter = get_frame_counter();
 			time_counter = 0;
 			level++;
 			jump = -1;
@@ -441,12 +449,12 @@ alku:
 
 		if (keybuffer[ALLEGRO_KEY_P])
 		{
+			int pause_started = get_frame_counter();
 			clrscr();
-			screen_printf("\n\n\nGAME PAUSED\nPRESS SPACE TO CONTINUE\n");
-			while (!keybuffer[ALLEGRO_KEY_SPACE])
-			{
-				wait_event();
-			}
+			screen_printf("\n\n\nGAME PAUSED\nPRESS ENTER TO CONTINUE\n");
+			FLIP;
+			wait_key_press(ALLEGRO_KEY_ENTER);
+			initial_frame_counter += get_frame_counter() - pause_started;
 		}
 
 		if (keybuffer[ALLEGRO_KEY_ENTER]) // ALOITA ALUSTA
@@ -455,6 +463,7 @@ alku:
 			y = 160;
 			on_platform = 1;
 			jump = -1;
+			set_sfx(10, 20, 30, 40);
 		}
 
 		if (keybuffer[ALLEGRO_KEY_RIGHT] && x < 305) // LIIKU OIKEAAN
@@ -524,20 +533,12 @@ alku:
 
 		if (keybuffer[ALLEGRO_KEY_UP] && on_platform) // HYPPää!
 			jump = 6;
-		
+
 		if (keybuffer[ALLEGRO_KEY_DOWN] && weapon <= -20)
 		{
 			weapon = 20;
 			set_sfx(20, 19, 18, 0);
 		}
-
-		// TODO
-		/*if (keybuffer[SxF5] && keybuffer[SxJ] && lautalla == 'K') // KOODIT
-			hyppy = 12;
-		if (keybuffer[SxF5] && keybuffer[SxD] && y < 160) // KOODIT
-			lautalla = 'E';
-		if (keybuffer[SxF5] && keybuffer[SxF] && hyppy < 1) // KOODIT
-			hyppy = 6;*/
 
 		//*LAUTAT + MUUT*//
 
@@ -638,16 +639,38 @@ alku:
 		al_flip_display();
 		wait_delay(1);
 	}
-	draw_box(0, 0, 320, 200, 0);
-	clrscr();
-	screen_printf("\n\n         GAME OVER\nYOU REACHED LEVEL: %d / 15\n\n\n\n\n    PRESS SPACE", level);
+	clear_screen_for_text();
+	screen_printf("         GAME OVER\nYOU REACHED LEVEL: %d / 15\n\n\n\n\n    PRESS ENTER", level);
 	FLIP;
-	while (!keybuffer[ALLEGRO_KEY_SPACE])
-	{
-		wait_event();
-	}
+	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
 	goto alku;
+}
+
+#define CALC_GRADIENT(c0, c1, out)                   \
+	temp = c0 + (y - y1) * (c1 - c0) / (y2 - y1);    \
+	temp = temp > 255 ? 255 : (temp < 0 ? 0 : temp); \
+	unsigned char out = temp
+
+void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom)
+{
+	x1 *= 3;
+	x2 *= 3;
+	y1 *= 3;
+	y2 *= 3;
+	unsigned char c0r, c0g, c0b;
+	unsigned char c1r, c1g, c1b;
+	al_unmap_rgb(ega_color(box_color_top), &c0r, &c0g, &c0b);
+	al_unmap_rgb(ega_color(box_color_bottom), &c1r, &c1g, &c1b);
+
+	int temp;
+	for (int y = y1; y < y2; y++)
+	{
+		CALC_GRADIENT(c0r, c1r, r);
+		CALC_GRADIENT(c0g, c1g, g);
+		CALC_GRADIENT(c0b, c1b, b);
+		al_draw_filled_rectangle(x1, y, x2, y + 1, al_map_rgb(r, g, b));
+	}
 }
 
 void draw_box(int x1, int y1, int x2, int y2, char box_color)
@@ -707,7 +730,7 @@ void sprite_read(char sprite)
 
 	FILE *f = fopen(GAME_DATA_FILE, "r");
 	read_game_data_file_until(f, "sprite", sprite);
-	
+
 	while (read_result != 'E')
 	{
 		if (read_result != 10)
@@ -723,6 +746,4 @@ void sprite_read(char sprite)
 		}
 		read_result = fgetc(f);
 	}
-	while (read_result != 'E');
 }
-

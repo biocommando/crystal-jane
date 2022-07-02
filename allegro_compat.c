@@ -113,6 +113,12 @@ int get_sfx_pos()
     return sfx_pos;
 }
 
+int al_frame_counter = 0;
+int get_frame_counter()
+{
+    return al_frame_counter;
+}
+
 int wait_event()
 {
     ALLEGRO_TIMEOUT tmo;
@@ -130,6 +136,7 @@ int wait_event()
     }
     else if (event.type == ALLEGRO_EVENT_TIMER)
     {
+        al_frame_counter++;
 		if (sfx_pos >= 0)
 		{
 			sound(sfx[sfx_pos]);
@@ -178,6 +185,10 @@ void stateful_draw_text(const char *s)
     char chrbuf[3] = {' ', 0};
     for (int i = 0; s[i]; i++)
     {
+        if (screen_curs_x == 320)
+        {
+            al_draw_filled_rectangle(305, screen_curs_y - 2, 675, screen_curs_y + 18, al_map_rgb(128, 128, 128));
+        }
         if (s[i] == '\n')
         {
             screen_curs_y += 12;
@@ -185,7 +196,7 @@ void stateful_draw_text(const char *s)
             continue;
         }
         chrbuf[0] = s[i];
-        al_draw_text(font, al_map_rgb(255, 255, 255), screen_curs_x, screen_curs_y, 0, chrbuf);
+        al_draw_text(font, al_map_rgb(0, 0, 0), screen_curs_x, screen_curs_y, 0, chrbuf);
         screen_curs_x += 8;
     }
 }
