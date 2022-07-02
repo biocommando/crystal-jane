@@ -6,6 +6,8 @@ The new version adds compatibility with newer operating systems, music and new g
 
 See the gameplay footage at: https://youtu.be/7BP5n23aFtE
 
+Build on 2022-07-02 available as binary: https://drive.google.com/file/d/1MnRTRd9VPXBInpP40to-7KlBRNl01bW_/view?usp=sharing
+
 ---
 
 Original readme file that came with the distribution:
