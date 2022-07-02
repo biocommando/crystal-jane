@@ -742,7 +742,7 @@ void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mu
 }
 void sprite_read(char sprite)
 {
-	char read_result = 10;
+	char read_result = '\n';
 	int counter = 0;
 	char *sprite_buf = get_sprite(sprite);
 	if (!sprite_buf)
@@ -753,7 +753,7 @@ void sprite_read(char sprite)
 
 	while (read_result != 'E')
 	{
-		if (read_result != 10)
+		if (read_result != '\n')
 		{
 			if (read_result == ' ')
 				sprite_buf[counter] = TRANSPARENT;
