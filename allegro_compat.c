@@ -51,6 +51,8 @@ ALLEGRO_COLOR ega_color(char col)
 
 char keybuffer[ALLEGRO_KEY_MAX];
 
+int opt_sound_state = 0;
+
 int init_allegro()
 {
     memset(keybuffer, 0, sizeof(keybuffer));
@@ -74,11 +76,14 @@ int init_allegro()
         return 1;
     }
 
-    al_install_audio();
-    al_reserve_samples(0);
-    audio_stream = al_create_audio_stream(8, 1024, 44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
-    mixer = al_get_default_mixer();
-    al_attach_audio_stream_to_mixer(audio_stream, mixer);
+    if (opt_sound_state != OPT_ALL_SOUND_OFF)
+    {
+        al_install_audio();
+        al_reserve_samples(0);
+        audio_stream = al_create_audio_stream(8, 1024, 44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+        mixer = al_get_default_mixer();
+        al_attach_audio_stream_to_mixer(audio_stream, mixer);
+    }
 
     timer = al_create_timer(1.0 / 20);
     queue = al_create_event_queue();
@@ -86,22 +91,31 @@ int init_allegro()
     al_register_event_source(queue, al_get_mouse_event_source());
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
-    al_register_event_source(queue, al_get_audio_stream_event_source(audio_stream));
+    if (opt_sound_state != OPT_ALL_SOUND_OFF)
+    {
+        al_register_event_source(queue, al_get_audio_stream_event_source(audio_stream));
+    }
     al_start_timer(timer);
     synth_init(SYNTH_SETTINGS);
     return 0;
 }
 ALLEGRO_EVENT event;
 
+void set_sfx_off(int state)
+{
+    opt_sound_state = state;
+}
+
 void sound(int freq)
 {
-    trigger_sound(0, freq ? 32 + freq : 0);
+    if (opt_sound_state != OPT_SFX_OFF)
+        trigger_sound(0, freq ? 32 + freq : 0);
 }
 
 char sfx[4], sfx_pos = -1;
 void set_sfx(int a, int b, int c, int d)
 {
-	sound(a);
+    sound(a);
     sfx[0] = b;
     sfx[1] = c;
     sfx[2] = d;
@@ -137,20 +151,20 @@ int wait_event()
     else if (event.type == ALLEGRO_EVENT_TIMER)
     {
         al_frame_counter++;
-		if (sfx_pos >= 0)
-		{
-			sound(sfx[sfx_pos]);
-			sfx_pos++;
-			if (!sfx[sfx_pos])
-				sfx_pos = -1;
-		}
+        if (sfx_pos >= 0)
+        {
+            sound(sfx[sfx_pos]);
+            sfx_pos++;
+            if (!sfx[sfx_pos])
+                sfx_pos = -1;
+        }
         else
         {
             sound(0);
         }
         return 1;
     }
-    else if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT)
+    else if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT && opt_sound_state != OPT_ALL_SOUND_OFF)
     {
         ALLEGRO_AUDIO_STREAM *stream = (ALLEGRO_AUDIO_STREAM *)event.any.source;
         float *buf = (float *)al_get_audio_stream_fragment(stream);

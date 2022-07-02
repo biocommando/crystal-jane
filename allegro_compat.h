@@ -47,6 +47,11 @@ ALLEGRO_COLOR ega_color(char col);
 
 int get_frame_counter();
 
+#define OPT_SFX_OFF 1
+#define OPT_ALL_SOUND_OFF 2
+
+void set_sfx_off(int state);
+
 int init_allegro();
 int wait_event();
 void wait_delay(int v);

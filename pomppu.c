@@ -154,6 +154,10 @@ const char *get_arg(int argc, char **argv, char flag)
 
 int main(int argc, char **argv)
 {
+	if (GET_ARG('s'))
+	{
+		set_sfx_off(GET_ARG('m') ? OPT_ALL_SOUND_OFF : OPT_SFX_OFF);
+	}
 
 	if (init_allegro())
 	{
@@ -165,9 +169,13 @@ int main(int argc, char **argv)
 	{
 		wait_key_press(ALLEGRO_KEY_ENTER);
 	}
-	synth_init(SYNTH_SETTINGS);
-	extern const char my_synth_sequence[2838];
-	set_sequence(my_synth_sequence, 2838);
+
+	if (!GET_ARG('m'))
+	{
+		synth_init(SYNTH_SETTINGS);
+		extern const char my_synth_sequence[2838];
+		set_sequence(my_synth_sequence, 2838);
+	}
 
 	clear_screen_for_text();
 	screen_printf("HI!\nWelcome to Crystal Jane\n\nStory:\nJane has been ten years in a prison\n");
