@@ -8,7 +8,6 @@
 
 void read_game_data_file_until(FILE *f, const char *title, char id)
 {
-	printf("finding %s\n", title);
 	fseek(f, 0, SEEK_SET);
 	while(!feof(f))
 	{
@@ -17,7 +16,6 @@ void read_game_data_file_until(FILE *f, const char *title, char id)
 		sscanf(b, "@%s %c", rtitle, &rid);
 		if (!strcmp(title, rtitle) && (id == 0 || rid == id))
 		{
-			printf("found %s %d %c\n", title, id, id);
 			return;
 		}
 	}
