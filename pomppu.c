@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "build_info.h"
+
 #define GAME_DATA_FILE "gdat.dat"
 
 extern char keybuffer[ALLEGRO_KEY_MAX];
@@ -154,6 +156,29 @@ const char *get_arg(int argc, char **argv, char flag)
 
 int main(int argc, char **argv)
 {
+	if (GET_ARG('h'))
+	{
+		printf(
+			"CRYSTAL JANE\n\nversion " VERSION " - Built on " BUILD_DATE
+			"\nCopyrights 2004-2022 by Joonas Salonpaa\nMIT licensed\n\n"
+			"Available command line arguments:\n\n"
+			"  command   | description\n"
+			"--------------------------------------------------------\n"
+			"    h       | Show this help\n"
+			"    m       | Disable music\n"
+			"    s       | Disable sound\n"
+			"            | Note: if both m and s are given the sound\n"
+			"            | driver won't be loaded at all.\n"
+			"    w       | Wait for ENTER press before anything.\n"
+			"            | Makes it easier for screen recording to\n"
+			"            | capture also the beginning of the game.\n"
+			"    L[NUM]  | Skip to [NUM] level (1...15).\n"
+			"            | When this option is selected highscore is\n"
+			"            | not saved.\n"
+		);
+		return 0;
+	}
+
 	if (GET_ARG('s'))
 	{
 		set_sfx_off(GET_ARG('m') ? OPT_ALL_SOUND_OFF : OPT_SFX_OFF);
