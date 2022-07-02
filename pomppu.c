@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 	screen_printf("You can see your lives in the\nupper left corner\nand time running next to it...\nBest of luck for you!\n\nPRESS ENTER\n");
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
-alku:
+game_logic_start:
 	screen_printf("LOADING SPRITES...\n");
 
 	{
@@ -334,7 +334,7 @@ alku:
 				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
 				wait_delay(5);
-				goto alku;
+				goto game_logic_start;
 			}
 
 			FILE *game_data = fopen("gdat.dat", "r");
@@ -649,7 +649,7 @@ alku:
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
-	goto alku;
+	goto game_logic_start;
 }
 
 #define CALC_GRADIENT(c0, c1, out)                   \
