@@ -419,7 +419,7 @@ alku:
 			diamonds = diamond_count;
 			fclose(game_data);
 		}
-		draw_box(0, 0, 320, 200, DARK_GRAY);
+		draw_box_gradient(0, 0, 320, 200, DARK_GRAY, BLACK, 0);
 
 		if (jump > 0)
 		{
@@ -560,14 +560,14 @@ alku:
 
 		//*LAUTAT + MUUT*//
 
-		draw_box_gradient(0, 190, 320, 200, BROWN, YELLOW, 0);
+		draw_box_gradient(0, 190, 320, 200, BROWN, BRIGHT_YELLOW, 0);
 		for (count = 0; count < platform_count; count++)
 		{
-			draw_box_gradient(platform_x[count] - 1, platform_y[count], platform_x[count] + 50, platform_y[count] + 6, BROWN, YELLOW, 1);
+			draw_box_gradient(platform_x[count] - 1, platform_y[count], platform_x[count] + 50, platform_y[count] + 6, BROWN, BRIGHT_YELLOW, 1);
 		}
 		for (count = 0; count < wall_count; count++)
 		{
-			draw_box_gradient(wall_x[count], wall_y[count], wall_x[count] + 5, wall_y[count] + 30, BROWN, YELLOW, 1);
+			draw_box_gradient(wall_x[count], wall_y[count], wall_x[count] + 5, wall_y[count] + 30, BROWN, BRIGHT_YELLOW, 1);
 		}
 
 		for (count = 0; count < 10; count++)

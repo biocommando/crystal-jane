@@ -22,7 +22,6 @@
 #define BRIGHT_RED 12
 #define BRIGHT_MAGENTA 13
 #define BRIGHT_YELLOW 14
-#define YELLOW BRIGHT_YELLOW
 #define BRIGHT_WHITE 15
 #define SKIN 100
 
