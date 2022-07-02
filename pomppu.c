@@ -186,6 +186,7 @@ int main(int argc, char **argv)
 		"UP: Jump\n"
 		"RSHIFT: High jump (once in level)\n"
 		"DOWN: Use the bat-killing morningstar\n"
+		"ENTER: Teleport to beginning of level\n"
 		"P: Pause\n\n"
 		"Your mission is to collect all\nthe lifecrystals on 15 levels.\n\n"
 		"PRESS ENTER\n");
