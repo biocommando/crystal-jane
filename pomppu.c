@@ -36,6 +36,7 @@ char *tulos, anim[2], lautalla, hyppy, aani = 1;
 #define SP_LEFT_FACING(x) ((x) == 0 ? '<' : '{')
 #define SP_RIGHT_FACING(x) ((x) == 0 ? '>' : '}')
 #define SP_DIAMOND 'D'
+#define SP_STONEMAN 'S'
 
 #define SP_PLAYER_W 7
 #define SP_PLAYER_H 16
@@ -257,7 +258,7 @@ alku:
 			{
 				anim[1] = 0;
 
-				sprite_read('S');
+				sprite_read(SP_STONEMAN);
 				for (x = 0; x < 200; x = x + 3)
 				{
 					piirra_boxi(0, 0, 320, 200, 0);
@@ -270,7 +271,7 @@ alku:
 					else
 						anim[0] = SP_RIGHT_FACING(1);
 					sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
-					sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
+					sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 
 					al_flip_display();
 					viive(1);
@@ -278,7 +279,7 @@ alku:
 				clrscr();
 				piirra_boxi(0, 0, 320, 200, 0);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
-				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
+				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				screen_printf("JANE: NOW I HAVE COLLECTED\nALL THE CRYSTALS!\n[ENTER]\n");
 				FLIP;
 				while (!keybuffer[SxENTER])
@@ -289,7 +290,7 @@ alku:
 				viive(5);
 				clrscr();
 				piirra_boxi(0, 0, 320, 200, 0);
-				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
+				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				screen_printf("STONEMAN: YES. I SEE.\nNOW YOU'LL BE FREE TO GO...\n[ENTER]\n");
 				FLIP;
@@ -301,7 +302,7 @@ alku:
 				viive(5);
 				clrscr();
 				piirra_boxi(0, 0, 320, 200, 0);
-				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, 'S', 4);
+				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				score += lives * 1000;
 				screen_printf("CONGRATULATIONS!!!\nYOU HAVE COMPLETED CRYSTAL JANE!\n\nLIVES BONUS: %d\n"
@@ -662,7 +663,7 @@ void piirra_boxi(int x1, int y1, int x2, int y2, char boxvari)
 
 char *get_sprite(char kumpi)
 {
-	if (kumpi == SP_LEFT_FACING(0) || kumpi == 'S')
+	if (kumpi == SP_LEFT_FACING(0) || kumpi == SP_STONEMAN)
 		return aijavas1;
 	if (kumpi == SP_LEFT_FACING(1))
 		return aijavas2;
