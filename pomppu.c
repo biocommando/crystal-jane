@@ -380,6 +380,8 @@ game_logic_start:
 			bats_killed = 0;
 
 			platform_count = wall_count = diamond_count = bat_count = 0;
+			memset(diamond_anim, 0, sizeof(diamond_anim));
+			memset(bat_status, 1, sizeof(bat_status));
 			while (1)
 			{
 				fgets(file_read_buf, 20, game_data);
@@ -403,14 +405,12 @@ game_logic_start:
 				{
 					diamond_x[diamond_count] = rx;
 					diamond_y[diamond_count] = ry;
-					diamond_anim[diamond_count] = 0;
 					diamond_count++;
 				}
 				else if (type == 'B')
 				{
 					bat_x[bat_count] = rx;
 					bat_y[bat_count] = ry;
-					bat_status[bat_count] = 1;
 					bat_count++;
 				}
 			}
