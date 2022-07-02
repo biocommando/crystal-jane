@@ -395,7 +395,7 @@ alku:
 			diamonds = diamond_maara;
 			fclose(game_data);
 		}
-		piirra_boxi(0, 0, 320, 200, DARKGRAY);
+		piirra_boxi(0, 0, 320, 200, DARK_GRAY);
 
 		if (hyppy > 0)
 		{
@@ -595,7 +595,7 @@ alku:
 				y = 160;
 				lautalla = 'K';
 				hyppy = -1;
-				piirra_boxi(0, 0, 320, 200, LIGHTRED);
+				piirra_boxi(0, 0, 320, 200, BRIGHT_RED);
 				set_sfx(20, 15, 10, 5);
 				continue;
 			}
@@ -625,7 +625,7 @@ alku:
 		for (lasku = 0; lasku < lives; lasku++) // PIIRRä ELäMäT
 			sprite_do(lasku * 10, 1, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 1);
 
-		piirra_boxi(125, 1, 125 + (175 - aika / 2), 6, LIGHTRED); // PIIRRä AIKA
+		piirra_boxi(125, 1, 125 + (175 - aika / 2), 6, BRIGHT_RED); // PIIRRä AIKA
 
 		aika++;
 		if (aika > 350)
