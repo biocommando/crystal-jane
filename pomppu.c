@@ -103,11 +103,13 @@ const char *get_arg(int argc, char **argv, char flag)
 
 int main(int argc, char **argv)
 {
+	printf(
+		"CRYSTAL JANE\n\nversion " VERSION " - Built on " BUILD_DATE
+		"\nCopyrights 2004-2022 by Joonas Salonpaa\nMIT licensed\n");
 	if (GET_ARG('h'))
 	{
 		printf(
-			"CRYSTAL JANE\n\nversion " VERSION " - Built on " BUILD_DATE
-			"\nCopyrights 2004-2022 by Joonas Salonpaa\nMIT licensed\n\n"
+			"\n"
 			"Available command line arguments:\n\n"
 			"  command   | description\n"
 			"--------------------------------------------------------------------------------\n"
@@ -123,10 +125,11 @@ int main(int argc, char **argv)
 			"            | When this option is selected highscore is not saved.\n"
 			"    r       | Enable replay more that prevents level progression\n"
 			"    S       | Disable ending splash screen\n"
-			"    a[SIZE] | Audio buffer size (2^n), default 1024\n"
-		);
+			"    a[SIZE] | Audio buffer size (2^n), default 1024\n");
 		return 0;
 	}
+
+	printf("Run with '%s h' to see help on command line options\n", argv[0]);
 
 	if (GET_ARG('s'))
 	{
@@ -273,17 +276,18 @@ game_logic_start:
 				clear_screen_for_text();
 				if (time_bonus < 0)
 					time_bonus = 0;
+				bats_killed *= 50;
 				score += time_bonus;
-				score += bats_killed * 50;
+				score += bats_killed;
 				screen_printf(
 					"         LEVEL %d COMPLETE!\n\n"
 					"         COMPLETE TIME    : %.1f SEC\n"
 					"         TIME BONUS       : %d\n\n"
-					"         BATS KILLED BONUS: %d * 50 = %d\n\n"
+					"         BATS KILLED BONUS: %d\n\n"
 					"         LIVES LEFT       : %d\n\n"
 					"         TOTAL SCORE      : %d\n\n\n"
 					"         PRESS ENTER",
-					level + 1, beat_time_frames / 20.0f, time_bonus, bats_killed, bats_killed * 50, lives, score);
+					level, beat_time_frames / 20.0f, time_bonus, bats_killed, lives, score);
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 			}
@@ -373,6 +377,7 @@ game_logic_start:
 			on_platform = 1;
 			x = 15;
 			y = 160;
+			bats_killed = 0;
 
 			platform_count = wall_count = diamond_count = bat_count = 0;
 			while (1)
