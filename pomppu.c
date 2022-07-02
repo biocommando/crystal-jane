@@ -80,9 +80,12 @@ char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_N
 char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
 // 7*16 = 112   ;  5*6 = 30
 
-int y, x, lives, diamonds, time_counter, level, count, platform_x[50], platform_y[50], wall_x[50], wall_y[50], diamond_x[50], diamond_y[50], hiscore = 0;
+#define MAX_OBJ 50
+
+int y, x, lives, diamonds, time_counter, level, count, platform_x[MAX_OBJ], platform_y[MAX_OBJ], wall_x[MAX_OBJ], wall_y[MAX_OBJ], diamond_x[MAX_OBJ], diamond_y[MAX_OBJ], hiscore = 0;
+int diamond_anim[MAX_OBJ];
 int score = 0;
-int bat_x[50], bat_y[50];
+int bat_x[MAX_OBJ], bat_y[MAX_OBJ], bat_status[MAX_OBJ];
 int platform_count, wall_count, diamond_count, bat_count;
 int scaling = 3;
 
@@ -290,7 +293,7 @@ game_logic_start:
 				anim[1] = 0;
 
 				sprite_read(SP_STONEMAN);
-				for (x = 0; x < 200; x = x + 3)
+				for (x = 0; x < 210; x = x + 3)
 				{
 					draw_box(0, 0, 320, 200, 0);
 					anim[1]++;
@@ -341,7 +344,6 @@ game_logic_start:
 
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
-				set_sfx(20, 30, 40, 50);
 				wait_delay(5);
 				goto game_logic_start;
 			}
@@ -396,12 +398,14 @@ game_logic_start:
 				{
 					diamond_x[diamond_count] = rx;
 					diamond_y[diamond_count] = ry;
+					diamond_anim[diamond_count] = 0;
 					diamond_count++;
 				}
 				else if (type == 'B')
 				{
 					bat_x[bat_count] = rx;
 					bat_y[bat_count] = ry;
+					bat_status[bat_count] = 1;
 					bat_count++;
 				}
 			}
@@ -445,11 +449,12 @@ game_logic_start:
 		}
 		for (count = 0; count < diamond_count; count++)
 		{
+			if (diamond_anim[count])
+				continue;
 			if (diamond_x[count] + 10 > x && diamond_x[count] < x + 14 && diamond_y[count] < y + 32 && diamond_y[count] + 10 > y) // OTA TIMANTTI
 			{
 				diamonds--;
-				diamond_x[count] = 500;
-				diamond_y[count] = 500;
+				diamond_anim[count] = 1;
 				set_sfx(30, 42, 37, 0);
 			}
 		}
@@ -561,8 +566,15 @@ game_logic_start:
 
 		for (count = 0; count < 10; count++)
 		{
-			if (diamond_x[count] < 500)
+			if (diamond_anim[count] < 10)
+			{
 				sprite_do(diamond_x[count], diamond_y[count], SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
+				if (diamond_anim[count])
+				{
+					diamond_y[count] -= 3;
+					diamond_anim[count]++;
+				}
+			}
 		}
 
 		int weap_x = 999, weap_y = 999;
@@ -588,13 +600,21 @@ game_logic_start:
 
 		for (count = 0; count < bat_count; count++)
 		{
-			if (bat_x[count] >= 500)
+			if (!bat_status[count])
 				continue;
+			if (bat_status[count] == 2)
+			{
+				sprite_do(bat_x[count], bat_y[count], SP_BAT_W, SP_BAT_H, SP_BAT(1), 2);
+				bat_y[count] += 5;
+				if (bat_y[count] > 200)
+					bat_status[count] = 0;
+				continue;
+			}
 			if (bat_x[count] + 27 > weap_x && bat_x[count] - 5 < weap_x && bat_y[count] - 4 < weap_y && bat_y[count] + 13 > weap_y)
 			{
 				bats_killed++;
 				time_counter -= 20;
-				bat_x[count] = 500;
+				bat_status[count] = 2;
 				draw_box(0, 0, 320, 200, BRIGHT_GREEN);
 				set_sfx(60, 60, 20, 20);
 				continue;
@@ -603,7 +623,7 @@ game_logic_start:
 			if (bat_x[count] + 10 > x && bat_x[count] < x + 14 && bat_y[count] < y + 32 && bat_y[count] + 10 > y)
 			{
 				lives--;
-				bat_x[count] = 500;
+				bat_status[count] = 2;
 				x = 15;
 				y = 160;
 				on_platform = 1;
