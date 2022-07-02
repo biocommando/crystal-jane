@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	while (!keybuffer[SxSPACE] && GET_ARG('w'))
+	while (!keybuffer[ALLEGRO_KEY_SPACE] && GET_ARG('w'))
 	{
 		wait_event();
 	}
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 	screen_printf("of a cruel stoneman.\nOne day stoneman says to free Jane\nif she collects all");
 	screen_printf(" the lifecrystals\non that planet...\n\nPRESS ENTER\n");
 	FLIP;
-	while (!keybuffer[SxENTER])
+	while (!keybuffer[ALLEGRO_KEY_ENTER])
 	{
 		wait_event();
 	}
@@ -166,7 +166,7 @@ int main(int argc, char **argv)
 		"\nPRESS P ANYTIME TO PAUSE GAME.\nYour mission is to get");
 	screen_printf(" the lifecrystals\non 15 levels.\n\nPRESS ENTER\n");
 	FLIP;
-	while (!keybuffer[SxENTER])
+	while (!keybuffer[ALLEGRO_KEY_ENTER])
 	{
 		wait_event();
 	}
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 	piirra_boxi(0, 0, 320, 200, 0);
 	screen_printf("You can see your lives in the\nupper left corner\nand time running next to it...\nBest of luck for you!\n\nPRESS ENTER\n");
 	FLIP;
-	while (!keybuffer[SxENTER])
+	while (!keybuffer[ALLEGRO_KEY_ENTER])
 	{
 		wait_event();
 	}
@@ -221,13 +221,13 @@ alku:
 	sprite_do(140, 94, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
 	sprite_do(180, 75, SP_BAT_W, SP_BAT_H, SP_BAT(0), 2);
 	clrscr();
-	screen_printf("Crystal Jane (c) Upr00ted tree software\n        MENU\n        1: PLAY\n        2: QUIT\n\n\n\n\n\n\n\n        HISCORE: %d\n", enkka);
+	screen_printf("Crystal Jane (c) Upr00ted tree software\n        MENU\n       UP: PLAY\n     DOWN: QUIT\n\n\n\n\n\n\n\n        HISCORE: %d\n", enkka);
 	FLIP;
 	set_sfx(20, 30, 40, 50);
 	while (1)
 	{
 		wait_event();
-		if (keybuffer[Sx2])
+		if (keybuffer[ALLEGRO_KEY_DOWN])
 		{
 			synth_init(SYNTH_SETTINGS);
 			clrscr();
@@ -240,13 +240,13 @@ alku:
 			exit(1);
 		}
 
-		if (keybuffer[Sx1])
+		if (keybuffer[ALLEGRO_KEY_UP])
 			break;
 	}
 	set_sfx(70, 10, 50, 30);
 
 	int ase = 0;
-	while (lives > 0 && !keybuffer[SxESC])
+	while (lives > 0 && !keybuffer[ALLEGRO_KEY_ESCAPE])
 	{
 		if (diamonds == 0)
 		{
@@ -282,7 +282,7 @@ alku:
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				screen_printf("JANE: NOW I HAVE COLLECTED\nALL THE CRYSTALS!\n[ENTER]\n");
 				FLIP;
-				while (!keybuffer[SxENTER])
+				while (!keybuffer[ALLEGRO_KEY_ENTER])
 				{
 					wait_event();
 				}
@@ -294,7 +294,7 @@ alku:
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				screen_printf("STONEMAN: YES. I SEE.\nNOW YOU'LL BE FREE TO GO...\n[ENTER]\n");
 				FLIP;
-				while (!keybuffer[SxENTER])
+				while (!keybuffer[ALLEGRO_KEY_ENTER])
 				{
 					wait_event();
 				}
@@ -319,7 +319,7 @@ alku:
 					screen_printf("HISCORE: %d\n", enkka);
 
 				FLIP;
-				while (!keybuffer[SxENTER])
+				while (!keybuffer[ALLEGRO_KEY_ENTER])
 				{
 					wait_event();
 				}
@@ -345,7 +345,7 @@ alku:
 
 				screen_printf("         %d: %s\n\n\n\nPress enter...\n", level + 1, level_name);
 				FLIP;
-				while (!keybuffer[SxENTER])
+				while (!keybuffer[ALLEGRO_KEY_ENTER])
 				{
 					wait_event();
 				}
@@ -441,17 +441,17 @@ alku:
 			}
 		}
 
-		if (keybuffer[SxP])
+		if (keybuffer[ALLEGRO_KEY_P])
 		{
 			clrscr();
 			screen_printf("\n\n\nGAME PAUSED\nPRESS SPACE TO CONTINUE\n");
-			while (!keybuffer[SxSPACE])
+			while (!keybuffer[ALLEGRO_KEY_SPACE])
 			{
 				wait_event();
 			}
 		}
 
-		if (keybuffer[SxENTER]) // ALOITA ALUSTA
+		if (keybuffer[ALLEGRO_KEY_ENTER]) // ALOITA ALUSTA
 		{
 			x = 15;
 			y = 160;
@@ -644,7 +644,7 @@ alku:
 	clrscr();
 	screen_printf("\n\n         GAME OVER\nYOU REACHED LEVEL: %d / 15\n\n\n\n\n    PRESS SPACE", level);
 	FLIP;
-	while (!keybuffer[SxSPACE])
+	while (!keybuffer[ALLEGRO_KEY_SPACE])
 	{
 		wait_event();
 	}

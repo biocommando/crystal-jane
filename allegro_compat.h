@@ -28,13 +28,6 @@
 #define BRIGHT_WHITE 15
 #define SKIN 100
 
-#define SxENTER ALLEGRO_KEY_ENTER
-#define SxESC ALLEGRO_KEY_ESCAPE
-#define Sx1 ALLEGRO_KEY_1
-#define Sx2 ALLEGRO_KEY_2
-#define SxP ALLEGRO_KEY_P
-#define SxSPACE ALLEGRO_KEY_SPACE
-
 #define SYNTH_FLAGS(volume, envelope, synth_idx) \
     (((volume) | (((envelope) << 4) & 0xF0)) << (synth_idx * 8))
 
