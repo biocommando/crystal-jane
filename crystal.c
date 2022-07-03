@@ -1,5 +1,7 @@
 #include "allegro_compat.h"
+#include "game_data.h"
 #include "synth.h"
+#include "common.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -7,69 +9,8 @@
 #include "build_info.h"
 
 int verbose_logging = 0;
-#define verbose_log(...) \
-	if (verbose_logging) \
-	printf("DEBUG: " __VA_ARGS__)
-char game_data_file_name[256] = "gdat.dat";
-char hiscore_file_name[256] = "hiscore.jan";
-char best_times_file_name[256] = "best_times.jan";
 
 extern char keybuffer[ALLEGRO_KEY_MAX];
-
-int read_game_data_file_until(FILE *f, const char *title, char id)
-{
-	verbose_log("Read data %s:%c\n", title, id);
-	fseek(f, 0, SEEK_SET);
-	while (!feof(f))
-	{
-		char b[100], rtitle[100] = "", rid = 0;
-		fgets(b, 100, f);
-		sscanf(b, "@%s %c", rtitle, &rid);
-		if (!strcmp(title, rtitle) && (id == 0 || rid == id))
-		{
-			return 0;
-		}
-	}
-	verbose_log("failed to locate data %s:%c\n", title, id);
-	return 1;
-}
-
-int read_game_data_setting(const char *setting_name, int default_value)
-{
-	int value = default_value;
-	FILE *f = fopen(game_data_file_name, "r");
-	if (!read_game_data_file_until(f, setting_name, 0))
-	{
-		fscanf(f, "%d", &value);
-	}
-	fclose(f);
-	return value;
-}
-
-int get_best_time_for_level(int level)
-{
-	FILE *f = fopen(best_times_file_name, "rb");
-	if (!f)
-		return -1;
-	fseek(f, sizeof(int) * level, SEEK_SET);
-	int tm;
-	fread(&tm, sizeof(int), 1, f);
-	fclose(f);
-	return tm;
-}
-
-void set_best_time_for_level(int level, int best_time)
-{
-	int times[15];
-	for (int i = 0; i < 15; i++)
-	{
-		times[i] = i == level ? best_time : get_best_time_for_level(i);
-	}
-
-	FILE *f = fopen(best_times_file_name, "wb");
-	fwrite(times, sizeof(int), 15, f);
-	fclose(f);
-}
 
 void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom, int symmetric);
 void draw_box(int x1, int y1, int x2, int y2, char box_color);
@@ -126,13 +67,8 @@ char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_N
 char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
 // 7*16 = 112   ;  5*6 = 30
 
-#define MAX_OBJ 50
-
-int y, x, lives, diamonds, time_counter, level, count, platform_x[MAX_OBJ], platform_y[MAX_OBJ], wall_x[MAX_OBJ], wall_y[MAX_OBJ], diamond_x[MAX_OBJ], diamond_y[MAX_OBJ], hiscore = 0;
-int diamond_anim[MAX_OBJ];
+int y, x, lives, diamonds, time_counter, level, count, hiscore = 0;
 int score = 0;
-int bat_x[MAX_OBJ], bat_y[MAX_OBJ], bat_status[MAX_OBJ];
-int platform_count, wall_count, diamond_count, bat_count;
 int scaling = 3;
 int final_level = 15;
 
@@ -140,10 +76,10 @@ int final_level = 15;
 int enable_sprint = 1, enable_high_jump = 1, enable_weapon = 1,
 	jump_height = 6, high_jump_height = 10, max_lives = 8;
 
-#define FROM_GAME_SETTINGS(x)                       \
-	do                                              \
-	{                                               \
-		x = read_game_data_setting(#x, x);          \
+#define FROM_GAME_SETTINGS(x)                          \
+	do                                                 \
+	{                                                  \
+		x = read_game_data_setting(#x, x);             \
 		verbose_log("Game setting: " #x " = %d\n", x); \
 	} while (0)
 
@@ -199,15 +135,13 @@ int main(int argc, char **argv)
 	if (GET_ARG('g'))
 	{
 		printf("Change game data file to %s\n", GET_ARG('g'));
-		if (snprintf(game_data_file_name, sizeof(game_data_file_name), "%s", GET_ARG('g')) < 0 ||
-			snprintf(hiscore_file_name, sizeof(hiscore_file_name), "%s-hiscore.jan", GET_ARG('g')) < 0 ||
-			snprintf(best_times_file_name, sizeof(best_times_file_name), "%s-best_times.jan", GET_ARG('g')) < 0)
+		if (set_game_data_file_name(GET_ARG('g')))
 		{
 			printf("Error changing game data file\n");
 			return 0;
 		}
 	}
-	
+
 	FROM_GAME_SETTINGS(final_level);
 	FROM_GAME_SETTINGS(enable_high_jump);
 	FROM_GAME_SETTINGS(enable_sprint);
@@ -286,18 +220,7 @@ int main(int argc, char **argv)
 game_logic_start:
 	screen_printf("LOADING SPRITES...\n");
 
-	{
-		FILE *fhscore = fopen(hiscore_file_name, "r");
-		if (fhscore)
-		{
-			fscanf(fhscore, "%d", &hiscore);
-			fclose(fhscore);
-		}
-		if (hiscore & 0xFE000000)
-			hiscore ^= 0xFEFEFEFE;
-		else
-			hiscore = 0;
-	}
+	hiscore = get_highscore();
 
 	sprite_read(SP_LEFT_FACING(0));
 	sprite_read(SP_LEFT_FACING(1));
@@ -329,8 +252,9 @@ game_logic_start:
 	sprite_do(150, 154, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
 	sprite_do(190, 135, SP_BAT_W, SP_BAT_H, SP_BAT(0), 2);
 	screen_printf("Crystal Jane (c) Upr00ted tree software\n        MENU\n       UP: PLAY\n     DOWN: QUIT\n\n\n\n\n\n\n\n        HISCORE: %d\n", hiscore);
-	if (strcmp(game_data_file_name, "gdat.dat"))
+	if (GET_ARG('g'))
 	{
+		extern char game_data_file_name[256];
 		screen_printf("\nmod loaded: %s\n", game_data_file_name);
 	}
 	FLIP;
@@ -360,6 +284,7 @@ game_logic_start:
 	int initial_frame_counter = 0;
 	int bats_killed = 0;
 	int sprint, high_jump;
+	struct level_info world;
 	while (lives > 0 && !keybuffer[ALLEGRO_KEY_ESCAPE])
 	{
 		if (diamonds == 0)
@@ -447,9 +372,7 @@ game_logic_start:
 
 				if (score > hiscore && !GET_ARG('L')) // Hiscore logic disabled if level jump is used
 				{
-					FILE *fhscore = fopen(hiscore_file_name, "w");
-					fprintf(fhscore, "%d", score ^ 0xFEFEFEFE);
-					fclose(fhscore);
+					set_highscore(score);
 					screen_printf("NEW HISCORE!\n");
 				}
 				else
@@ -461,24 +384,18 @@ game_logic_start:
 				goto game_logic_start;
 			}
 
-			FILE *game_data = fopen(game_data_file_name, "r");
-			read_game_data_file_until(game_data, "level", level < 9 ? '1' + level : 'A' + level - 9);
+			read_level(level, &world);
 
-			if (level != final_level)
-			{
-				clear_screen_for_text();
-				screen_printf("         GET READY FOR ACTION!\n\n\n                 LEVEL:\n");
+			clear_screen_for_text();
+			screen_printf("         GET READY FOR ACTION!\n\n\n                 LEVEL:\n");
 
-				char level_name[32];
-				fgets(level_name, 32, game_data);
-				float best_time = get_best_time_for_level(level) / 20.0f;
+			float best_time = get_best_time_for_level(level) / 20.0f;
 
-				screen_printf("         %d: %s\n\n         BEST TIME: %.1f SEC\n\n         PRESS ENTER\n",
-							  level + 1, level_name, best_time >= 0 ? best_time : 999);
-				FLIP;
-				wait_key_press(ALLEGRO_KEY_ENTER);
-				set_sfx(20, 30, 40, 50);
-			}
+			screen_printf("         %d: %s\n\n         BEST TIME: %.1f SEC\n\n         PRESS ENTER\n",
+						  level + 1, world.level_name, best_time >= 0 ? best_time : 999);
+			FLIP;
+			wait_key_press(ALLEGRO_KEY_ENTER);
+			set_sfx(20, 30, 40, 50);
 
 			initial_frame_counter = get_frame_counter();
 			time_counter = 0;
@@ -492,43 +409,7 @@ game_logic_start:
 			sprint = 0;
 			high_jump = 1;
 
-			platform_count = wall_count = diamond_count = bat_count = 0;
-			memset(diamond_anim, 0, sizeof(diamond_anim));
-			memset(bat_status, 1, sizeof(bat_status));
-			while (1)
-			{
-				fgets(file_read_buf, 20, game_data);
-				if (feof(game_data) || file_read_buf[0] == '@')
-					break;
-				int rx, ry, type = 0;
-				sscanf(file_read_buf, "%d %d %c", &rx, &ry, &type);
-				if (type == 'H')
-				{
-					platform_x[platform_count] = rx;
-					platform_y[platform_count] = ry;
-					platform_count++;
-				}
-				else if (type == 'V')
-				{
-					wall_x[wall_count] = rx;
-					wall_y[wall_count] = ry;
-					wall_count++;
-				}
-				else if (type == 'D')
-				{
-					diamond_x[diamond_count] = rx;
-					diamond_y[diamond_count] = ry;
-					diamond_count++;
-				}
-				else if (type == 'B')
-				{
-					bat_x[bat_count] = rx;
-					bat_y[bat_count] = ry;
-					bat_count++;
-				}
-			}
-			diamonds = diamond_count;
-			fclose(game_data);
+			diamonds = world.diamond_count;
 		}
 		draw_box_gradient(0, 0, 320, 200, DARK_GRAY, BLACK, 0);
 
@@ -545,13 +426,14 @@ game_logic_start:
 		if (jump < 0)
 		{
 			on_platform = 0;
-			for (count = 0; count < platform_count; count++)
+			for (count = 0; count < world.platform_count; count++)
 			{
-				if (platform_x[count] + 50 > x && platform_x[count] - 14 < x && platform_y[count] + 1 < y + 32 && platform_y[count] + 4 > y + 32)
+				if (world.platform_x[count] + 50 > x && world.platform_x[count] - 14 < x &&
+					world.platform_y[count] + 1 < y + 32 && world.platform_y[count] + 4 > y + 32)
 				{
 					on_platform = 1;
 					jump = -1;
-					y = platform_y[count] - 30;
+					y = world.platform_y[count] - 30;
 					break;
 				}
 			}
@@ -566,14 +448,15 @@ game_logic_start:
 				jump = -1;
 			}
 		}
-		for (count = 0; count < diamond_count; count++)
+		for (count = 0; count < world.diamond_count; count++)
 		{
-			if (diamond_anim[count])
+			if (world.diamond_anim[count])
 				continue;
-			if (diamond_x[count] + 10 > x && diamond_x[count] < x + 14 && diamond_y[count] < y + 32 && diamond_y[count] + 10 > y) // OTA TIMANTTI
+			if (world.diamond_x[count] + 10 > x && world.diamond_x[count] < x + 14 &&
+				world.diamond_y[count] < y + 32 && world.diamond_y[count] + 10 > y) // OTA TIMANTTI
 			{
 				diamonds--;
-				diamond_anim[count] = 1;
+				world.diamond_anim[count] = 1;
 				set_sfx(30, 42, 37, 0);
 			}
 		}
@@ -640,9 +523,10 @@ game_logic_start:
 				anim[1] = 0;
 			}
 			x = x + 3;
-			for (count = 0; count < wall_count; count++) // OSUUKO SEINääN
+			for (count = 0; count < world.wall_count; count++) // OSUUKO SEINääN
 			{
-				if (wall_x[count] > x && wall_x[count] - 11 < x && wall_y[count] < y + 30 && wall_y[count] + 30 > y)
+				if (world.wall_x[count] > x && world.wall_x[count] - 11 < x &&
+					world.wall_y[count] < y + 30 && world.wall_y[count] + 30 > y)
 					x = x - 3;
 			}
 		}
@@ -687,9 +571,10 @@ game_logic_start:
 				anim[1] = 0;
 			}
 			x = x - 3;
-			for (count = 0; count < wall_count; count++) // OSUUKO SEINääN
+			for (count = 0; count < world.wall_count; count++) // OSUUKO SEINääN
 			{
-				if (wall_x[count] + 5 > x && wall_x[count] < x && wall_y[count] < y + 30 && wall_y[count] + 30 > y)
+				if (world.wall_x[count] + 5 > x && world.wall_x[count] < x &&
+					world.wall_y[count] < y + 30 && world.wall_y[count] + 30 > y)
 					x = x + 3;
 			}
 		}
@@ -711,24 +596,26 @@ game_logic_start:
 		//*LAUTAT + MUUT*//
 
 		draw_box_gradient(0, 190, 320, 200, BROWN, BRIGHT_YELLOW, 0);
-		for (count = 0; count < platform_count; count++)
+		for (count = 0; count < world.platform_count; count++)
 		{
-			draw_box_gradient(platform_x[count] - 1, platform_y[count], platform_x[count] + 50, platform_y[count] + 6, BROWN, BRIGHT_YELLOW, 1);
+			draw_box_gradient(world.platform_x[count] - 1, world.platform_y[count],
+							  world.platform_x[count] + 50, world.platform_y[count] + 6, BROWN, BRIGHT_YELLOW, 1);
 		}
-		for (count = 0; count < wall_count; count++)
+		for (count = 0; count < world.wall_count; count++)
 		{
-			draw_box_gradient(wall_x[count], wall_y[count], wall_x[count] + 5, wall_y[count] + 30, BROWN, BRIGHT_YELLOW, 1);
+			draw_box_gradient(world.wall_x[count], world.wall_y[count],
+							  world.wall_x[count] + 5, world.wall_y[count] + 30, BROWN, BRIGHT_YELLOW, 1);
 		}
 
-		for (count = 0; count < diamond_count; count++)
+		for (count = 0; count < world.diamond_count; count++)
 		{
-			if (diamond_anim[count] < 10)
+			if (world.diamond_anim[count] < 10)
 			{
-				sprite_do(diamond_x[count], diamond_y[count], SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
-				if (diamond_anim[count])
+				sprite_do(world.diamond_x[count], world.diamond_y[count], SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
+				if (world.diamond_anim[count])
 				{
-					diamond_y[count] -= 3;
-					diamond_anim[count]++;
+					world.diamond_y[count] -= 3;
+					world.diamond_anim[count]++;
 				}
 			}
 		}
@@ -755,32 +642,34 @@ game_logic_start:
 		}
 		weapon--;
 
-		for (count = 0; count < bat_count; count++)
+		for (count = 0; count < world.bat_count; count++)
 		{
-			if (!bat_status[count])
+			if (!world.bat_status[count])
 				continue;
-			if (bat_status[count] == 2)
+			if (world.bat_status[count] == 2)
 			{
-				sprite_do(bat_x[count], bat_y[count], SP_BAT_W, SP_BAT_H, SP_BAT(1), 2);
-				bat_y[count] += 5;
-				if (bat_y[count] > 200)
-					bat_status[count] = 0;
+				sprite_do(world.bat_x[count], world.bat_y[count], SP_BAT_W, SP_BAT_H, SP_BAT(1), 2);
+				world.bat_y[count] += 5;
+				if (world.bat_y[count] > 200)
+					world.bat_status[count] = 0;
 				continue;
 			}
-			if (bat_x[count] + 27 > weap_x && bat_x[count] - 5 < weap_x && bat_y[count] - 4 < weap_y && bat_y[count] + 13 > weap_y)
+			if (world.bat_x[count] + 27 > weap_x && world.bat_x[count] - 5 < weap_x &&
+				world.bat_y[count] - 4 < weap_y && world.bat_y[count] + 13 > weap_y)
 			{
 				bats_killed++;
 				time_counter -= 20;
-				bat_status[count] = 2;
+				world.bat_status[count] = 2;
 				draw_box(0, 0, 320, 200, BRIGHT_GREEN);
 				set_sfx(60, 60, 20, 20);
 				continue;
 			}
 
-			if (bat_x[count] + 10 > x && bat_x[count] < x + 14 && bat_y[count] < y + 32 && bat_y[count] + 10 > y)
+			if (world.bat_x[count] + 10 > x && world.bat_x[count] < x + 14 &&
+				world.bat_y[count] < y + 32 && world.bat_y[count] + 10 > y)
 			{
 				lives--;
-				bat_status[count] = 2;
+				world.bat_status[count] = 2;
 				x = 15;
 				y = 160;
 				on_platform = 1;
@@ -791,24 +680,24 @@ game_logic_start:
 			}
 			if (rand() % 2)
 			{
-				if (bat_x[count] < x - 5)
-					bat_x[count] += 1 + rand() % 2;
-				else if (bat_x[count] > x + 5)
-					bat_x[count] -= 1 + rand() % 2;
+				if (world.bat_x[count] < x - 5)
+					world.bat_x[count] += 1 + rand() % 2;
+				else if (world.bat_x[count] > x + 5)
+					world.bat_x[count] -= 1 + rand() % 2;
 			}
 			if (rand() % 2)
 			{
-				if (bat_y[count] < y - 5)
-					bat_y[count] += 1 + rand() % 2;
-				else if (bat_y[count] > y + 5)
-					bat_y[count] -= 1 + rand() % 2;
+				if (world.bat_y[count] < y - 5)
+					world.bat_y[count] += 1 + rand() % 2;
+				else if (world.bat_y[count] > y + 5)
+					world.bat_y[count] -= 1 + rand() % 2;
 			}
 			if (rand() % 5 == 0)
 			{
-				bat_x[count] += 1 - 2 * (rand() % 2);
-				bat_y[count] += 1 - 2 * (rand() % 2);
+				world.bat_x[count] += 1 - 2 * (rand() % 2);
+				world.bat_y[count] += 1 - 2 * (rand() % 2);
 			}
-			sprite_do(bat_x[count], bat_y[count], SP_BAT_W, SP_BAT_H, SP_BAT(bat_x[count] % 2), 2);
+			sprite_do(world.bat_x[count], world.bat_y[count], SP_BAT_W, SP_BAT_H, SP_BAT(world.bat_x[count] % 2), 2);
 		}
 		sprite_do(x, y - 2, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 
@@ -919,29 +808,8 @@ void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mu
 }
 void sprite_read(char sprite)
 {
-	char read_result = '\n';
-	int counter = 0;
 	char *sprite_buf = get_sprite(sprite);
 	if (!sprite_buf)
 		return;
-
-	FILE *f = fopen(game_data_file_name, "r");
-	read_game_data_file_until(f, "sprite", sprite);
-
-	while (read_result != 'E')
-	{
-		if (read_result != '\n')
-		{
-			if (read_result == ' ')
-				sprite_buf[counter] = TRANSPARENT;
-			// Skin color was done using some weird hack, let's do less weird hack
-			else if (read_result == '*')
-				sprite_buf[counter] = SKIN;
-			else
-				sprite_buf[counter] = read_result - 47;
-
-			counter++;
-		}
-		read_result = fgetc(f);
-	}
+	game_data_read_sprite(sprite, sprite_buf);
 }

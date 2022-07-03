@@ -9,7 +9,8 @@ echo #define BUILD_DATE "%date%, time %time%" >> %file%
 echo #endif >> %file%
 
 @echo on
-gcc -static-libstdc++ pomppu.c allegro_compat.c synth.c music.c -Iinclude ^
+gcc -static-libstdc++ ^
+ crystal.c allegro_compat.c game_data.c music.c synth.c -Iinclude ^
  liballegro_audio.dll.a ^
  liballegro_font.dll.a ^
  liballegro_image.dll.a ^
