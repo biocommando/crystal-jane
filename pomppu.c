@@ -6,12 +6,19 @@
 
 #include "build_info.h"
 
-#define GAME_DATA_FILE "gdat.dat"
+int verbose_logging = 0;
+#define verbose_log(...) \
+	if (verbose_logging) \
+	printf("DEBUG: " __VA_ARGS__)
+char game_data_file_name[256] = "gdat.dat";
+char hiscore_file_name[256] = "hiscore.jan";
+char best_times_file_name[256] = "best_times.jan";
 
 extern char keybuffer[ALLEGRO_KEY_MAX];
 
-void read_game_data_file_until(FILE *f, const char *title, char id)
+int read_game_data_file_until(FILE *f, const char *title, char id)
 {
+	verbose_log("Read data %s:%c\n", title, id);
 	fseek(f, 0, SEEK_SET);
 	while (!feof(f))
 	{
@@ -20,14 +27,16 @@ void read_game_data_file_until(FILE *f, const char *title, char id)
 		sscanf(b, "@%s %c", rtitle, &rid);
 		if (!strcmp(title, rtitle) && (id == 0 || rid == id))
 		{
-			return;
+			return 0;
 		}
 	}
+	verbose_log("failed to locate data %s:%c\n", title, id);
+	return 1;
 }
 
 int get_best_time_for_level(int level)
 {
-	FILE *f = fopen("best_times.jan", "rb");
+	FILE *f = fopen(best_times_file_name, "rb");
 	if (!f)
 		return -1;
 	fseek(f, sizeof(int) * level, SEEK_SET);
@@ -44,8 +53,8 @@ void set_best_time_for_level(int level, int best_time)
 	{
 		times[i] = i == level ? best_time : get_best_time_for_level(i);
 	}
-	
-	FILE *f = fopen("best_times.jan", "wb");
+
+	FILE *f = fopen(best_times_file_name, "wb");
 	fwrite(times, sizeof(int), 15, f);
 	fclose(f);
 }
@@ -113,6 +122,7 @@ int score = 0;
 int bat_x[MAX_OBJ], bat_y[MAX_OBJ], bat_status[MAX_OBJ];
 int platform_count, wall_count, diamond_count, bat_count;
 int scaling = 3;
+int final_level = 15;
 
 const char *get_arg(int argc, char **argv, char flag)
 {
@@ -131,6 +141,11 @@ int main(int argc, char **argv)
 	printf(
 		"CRYSTAL JANE\n\nversion " VERSION " - Built on " BUILD_DATE
 		"\nCopyrights 2004-2022 by Joonas Salonpaa\nMIT licensed\n");
+	if (GET_ARG('v'))
+	{
+		verbose_logging = 1;
+		verbose_log("Verbose logging enabled\n");
+	}
 	if (GET_ARG('h'))
 	{
 		printf(
@@ -150,11 +165,32 @@ int main(int argc, char **argv)
 			"            | When this option is selected highscore is not saved.\n"
 			"    r       | Enable replay more that prevents level progression\n"
 			"    S       | Disable ending splash screen\n"
+			"    v       | Enable verbose logging\n"
+			"    g[FILE] | Change game data file to [FILE] (default 'gdat.dat')\n"
 			"    a[SIZE] | Audio buffer size (2^n), default 1024\n");
 		return 0;
 	}
 
 	printf("Run with '%s h' to see help on command line options\n", argv[0]);
+
+	if (GET_ARG('g'))
+	{
+		printf("Change game data file to %s\n", GET_ARG('g'));
+		if (snprintf(game_data_file_name, sizeof(game_data_file_name), "%s", GET_ARG('g')) < 0 ||
+			snprintf(hiscore_file_name, sizeof(hiscore_file_name), "%s-hiscore.jan", GET_ARG('g')) < 0 ||
+			snprintf(best_times_file_name, sizeof(best_times_file_name), "%s-best_times.jan", GET_ARG('g')) < 0)
+		{
+			printf("Error changing game data file\n");
+			return 0;
+		}
+		FILE *f = fopen(game_data_file_name, "r");
+		if (!read_game_data_file_until(f, "final_level", 0))
+		{
+			fscanf(f, "%d", &final_level);
+		}
+		fclose(f);
+		printf("The game mod has %d levels\n", final_level);
+	}
 
 	if (GET_ARG('s'))
 	{
@@ -213,8 +249,8 @@ int main(int argc, char **argv)
 		"DOWN: Use the bat-killing morningstar\n"
 		"ENTER: Teleport to beginning of level\n"
 		"P: Pause\n\n"
-		"Your mission is to collect all\nthe lifecrystals on 15 levels.\n\n"
-		"PRESS ENTER\n");
+		"Your mission is to collect all\nthe lifecrystals on %d levels.\n\n"
+		"PRESS ENTER\n", final_level);
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
@@ -226,7 +262,7 @@ game_logic_start:
 	screen_printf("LOADING SPRITES...\n");
 
 	{
-		FILE *fhscore = fopen("hiscore.jan", "r");
+		FILE *fhscore = fopen(hiscore_file_name, "r");
 		if (fhscore)
 		{
 			fscanf(fhscore, "%d", &hiscore);
@@ -313,7 +349,8 @@ game_logic_start:
 				score += bats_killed;
 				screen_printf(
 					"LEVEL %d COMPLETE!\n\n"
-					"COMPLETE TIME    : %.1f SEC\n                   ", level, beat_time_frames / 20.0f);
+					"COMPLETE TIME    : %.1f SEC\n                   ",
+					level, beat_time_frames / 20.0f);
 				int best_time = get_best_time_for_level(level - 1);
 				if (beat_time_frames < best_time || best_time < 0)
 				{
@@ -334,7 +371,7 @@ game_logic_start:
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 			}
-			if (level == 15)
+			if (level == final_level)
 			{
 				clear_screen_for_text();
 				anim[1] = 0;
@@ -381,7 +418,7 @@ game_logic_start:
 
 				if (score > hiscore && !GET_ARG('L')) // Hiscore logic disabled if level jump is used
 				{
-					FILE *fhscore = fopen("hiscore.jan", "w");
+					FILE *fhscore = fopen(hiscore_file_name, "w");
 					fprintf(fhscore, "%d", score ^ 0xFEFEFEFE);
 					fclose(fhscore);
 					screen_printf("NEW HISCORE!\n");
@@ -395,20 +432,20 @@ game_logic_start:
 				goto game_logic_start;
 			}
 
-			FILE *game_data = fopen(GAME_DATA_FILE, "r");
+			FILE *game_data = fopen(game_data_file_name, "r");
 			read_game_data_file_until(game_data, "level", level < 9 ? '1' + level : 'A' + level - 9);
 
-			if (level != 15)
+			if (level != final_level)
 			{
 				clear_screen_for_text();
 				screen_printf("         GET READY FOR ACTION!\n\n\n                 LEVEL:\n");
 
 				char level_name[32];
 				fgets(level_name, 32, game_data);
-				float best_time =  get_best_time_for_level(level) / 20.0f;
+				float best_time = get_best_time_for_level(level) / 20.0f;
 
 				screen_printf("         %d: %s\n\n         BEST TIME: %.1f SEC\n\n         PRESS ENTER\n",
-					level + 1, level_name, best_time >= 0 ? best_time : 999);
+							  level + 1, level_name, best_time >= 0 ? best_time : 999);
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
@@ -765,7 +802,7 @@ game_logic_start:
 		wait_delay(1);
 	}
 	clear_screen_for_text();
-	screen_printf("         GAME OVER\nYOU REACHED LEVEL: %d / 15\n\n\n\n\n    PRESS ENTER", level);
+	screen_printf("         GAME OVER\nYOU REACHED LEVEL: %d / %d\n\n\n\n\n    PRESS ENTER", level, final_level);
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
@@ -859,7 +896,7 @@ void sprite_read(char sprite)
 	if (!sprite_buf)
 		return;
 
-	FILE *f = fopen(GAME_DATA_FILE, "r");
+	FILE *f = fopen(game_data_file_name, "r");
 	read_game_data_file_until(f, "sprite", sprite);
 
 	while (read_result != 'E')
