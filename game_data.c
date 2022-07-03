@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-extern int verbose_logging;
+EXTERN_GLOBALS;
 
 char game_data_file_name[256] = "gdat.dat";
 char hiscore_file_name[256] = "hiscore.jan";

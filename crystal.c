@@ -9,9 +9,7 @@
 
 #include "build_info.h"
 
-int verbose_logging = 0;
-
-extern char keybuffer[ALLEGRO_KEY_MAX];
+EXTERN_GLOBALS;
 
 void wait_key_press(int key)
 {
@@ -24,21 +22,6 @@ void wait_key_press(int key)
 		wait_event();
 	}
 }
-
-char *result, anim[2], on_platform, jump, sound_state = 1;
-
-char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_NUM_PX(PLAYER)], guy_right2[SP_NUM_PX(PLAYER)], dia_spr[SP_NUM_PX(DIAMOND)], *buf, file_read_buf[20];
-char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
-// 7*16 = 112   ;  5*6 = 30
-
-int y, x, lives, diamonds, time_counter, level, count, hiscore = 0;
-int score = 0;
-int scaling = 3;
-int final_level = 15;
-
-// game settings
-int enable_sprint = 1, enable_high_jump = 1, enable_weapon = 1,
-	jump_height = 6, high_jump_height = 10, max_lives = 8, time_counter_limit = 350;
 
 #define FROM_GAME_SETTINGS(x)                          \
 	do                                                 \
@@ -61,6 +44,19 @@ const char *get_arg(int argc, char **argv, char flag)
 
 int main(int argc, char **argv)
 {
+	char *result, anim[2], on_platform, jump, sound_state = 1;
+
+	char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_NUM_PX(PLAYER)], guy_right2[SP_NUM_PX(PLAYER)], dia_spr[SP_NUM_PX(DIAMOND)], *buf, file_read_buf[20];
+	char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
+	// 7*16 = 112   ;  5*6 = 30
+
+	int y, x, lives, diamonds, time_counter, level, count, hiscore = 0;
+	int score = 0;
+	int final_level = 15;
+
+	// game settings
+	int enable_sprint = 1, enable_high_jump = 1, enable_weapon = 1,
+		jump_height = 6, high_jump_height = 10, max_lives = 8, time_counter_limit = 350;
 	printf(
 		"CRYSTAL JANE\n\nversion " VERSION " - Built on " BUILD_DATE
 		"\nCopyrights 2004-2022 by Joonas Salonpaa\nMIT licensed\n");
@@ -663,4 +659,3 @@ game_logic_start:
 	set_sfx(20, 30, 40, 50);
 	goto game_logic_start;
 }
-

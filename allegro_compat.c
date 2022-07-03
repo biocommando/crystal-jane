@@ -1,8 +1,11 @@
 #include "allegro_compat.h"
 #include "synth.h"
 #include "build_info.h"
+#include "common.h"
 
 #include <stdio.h>
+
+EXTERN_GLOBALS;
 
 ALLEGRO_FONT *font = NULL;
 ALLEGRO_DISPLAY *display = NULL;
@@ -49,8 +52,6 @@ ALLEGRO_COLOR ega_color(char col)
         return al_map_rgb(239, 228, 176);
     return al_map_rgb(0, 0, 0);
 }
-
-char keybuffer[ALLEGRO_KEY_MAX];
 
 int opt_sound_state = 0;
 

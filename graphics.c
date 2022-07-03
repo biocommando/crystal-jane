@@ -3,6 +3,8 @@
 #include "allegro_compat.h"
 #include "game_data.h"
 
+EXTERN_GLOBALS;
+
 #define MAX_SPRITES 16
 
 struct
@@ -79,7 +81,6 @@ void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char 
         draw_box_gradient(x1, y1 + (y2 - y1) / 2, x2, y2, box_color_bottom, box_color_top, 0);
         return;
     }
-    extern int scaling;
     x1 *= scaling;
     x2 *= scaling;
     y1 *= scaling;
@@ -101,7 +102,6 @@ void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char 
 
 void draw_box(int x1, int y1, int x2, int y2, char box_color)
 {
-    extern int scaling;
     x1 *= scaling;
     x2 *= scaling;
     y1 *= scaling;
