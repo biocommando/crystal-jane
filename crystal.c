@@ -74,7 +74,7 @@ int final_level = 15;
 
 // game settings
 int enable_sprint = 1, enable_high_jump = 1, enable_weapon = 1,
-	jump_height = 6, high_jump_height = 10, max_lives = 8;
+	jump_height = 6, high_jump_height = 10, max_lives = 8, time_counter_limit = 350;
 
 #define FROM_GAME_SETTINGS(x)                          \
 	do                                                 \
@@ -149,6 +149,7 @@ int main(int argc, char **argv)
 	FROM_GAME_SETTINGS(jump_height);
 	FROM_GAME_SETTINGS(high_jump_height);
 	FROM_GAME_SETTINGS(max_lives);
+	FROM_GAME_SETTINGS(time_counter_limit);
 
 	if (GET_ARG('s'))
 	{
@@ -707,12 +708,12 @@ game_logic_start:
 		draw_box_gradient(125, 1, 125 + (175 - time_counter / 2), 6, RED, BRIGHT_RED, 1); // PIIRRä AIKA
 
 		time_counter++;
-		if (time_counter > 350)
+		if (time_counter > time_counter_limit)
 		{
 			lives--;
 			time_counter = 0;
 		}
-		if (time_counter > 300)
+		if (time_counter > time_counter_limit - 50)
 		{
 			set_sfx(10 * sound_state, 0, 0, 0);
 		}
