@@ -103,12 +103,14 @@ FILE *get_game_data_file()
     return fopen(game_data_file_name, "r");
 }
 
+#define LEVEL_ID(level) level < 9 ? '1' + level : 'A' + level - 9
+
 void read_level(int level, struct level_info *info)
 {
     memset(info, 0, sizeof(struct level_info));
     memset(info->bat_status, 1, sizeof(info->bat_status));
     FILE *game_data = get_game_data_file();
-    read_game_data_file_until(game_data, "level", level < 9 ? '1' + level : 'A' + level - 9);
+    read_game_data_file_until(game_data, "level", LEVEL_ID(level));
     fgets(info->level_name, 32, game_data);
     while (1)
     {
@@ -118,25 +120,25 @@ void read_level(int level, struct level_info *info)
             break;
         int rx, ry, type = 0;
         sscanf(file_read_buf, "%d %d %c", &rx, &ry, &type);
-        if (type == 'H')
+        if (type == 'H' && info->platform_count < MAX_OBJ)
         {
             info->platform_x[info->platform_count] = rx;
             info->platform_y[info->platform_count] = ry;
             info->platform_count++;
         }
-        else if (type == 'V')
+        else if (type == 'V' && info->wall_count < MAX_OBJ)
         {
             info->wall_x[info->wall_count] = rx;
             info->wall_y[info->wall_count] = ry;
             info->wall_count++;
         }
-        else if (type == 'D')
+        else if (type == 'D' && info->diamond_count < MAX_OBJ)
         {
             info->diamond_x[info->diamond_count] = rx;
             info->diamond_y[info->diamond_count] = ry;
             info->diamond_count++;
         }
-        else if (type == 'B')
+        else if (type == 'B' && info->bat_count < MAX_OBJ)
         {
             info->bat_x[info->bat_count] = rx;
             info->bat_y[info->bat_count] = ry;
