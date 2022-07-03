@@ -395,7 +395,7 @@ game_logic_start:
 				goto game_logic_start;
 			}
 
-			FILE *game_data = fopen("gdat.dat", "r");
+			FILE *game_data = fopen(GAME_DATA_FILE, "r");
 			read_game_data_file_until(game_data, "level", level < 9 ? '1' + level : 'A' + level - 9);
 
 			if (level != 15)
