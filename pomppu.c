@@ -34,6 +34,18 @@ int read_game_data_file_until(FILE *f, const char *title, char id)
 	return 1;
 }
 
+int read_game_data_setting(const char *setting_name, int default_value)
+{
+	int value = default_value;
+	FILE *f = fopen(game_data_file_name, "r");
+	if (!read_game_data_file_until(f, setting_name, 0))
+	{
+		fscanf(f, "%d", &value);
+	}
+	fclose(f);
+	return value;
+}
+
 int get_best_time_for_level(int level)
 {
 	FILE *f = fopen(best_times_file_name, "rb");
@@ -124,6 +136,17 @@ int platform_count, wall_count, diamond_count, bat_count;
 int scaling = 3;
 int final_level = 15;
 
+// game settings
+int enable_sprint = 1, enable_high_jump = 1, enable_weapon = 1,
+	jump_height = 6, high_jump_height = 10, max_lives = 8;
+
+#define FROM_GAME_SETTINGS(x)                       \
+	do                                              \
+	{                                               \
+		x = read_game_data_setting(#x, x);          \
+		verbose_log("Game setting: " #x " = %d\n", x); \
+	} while (0)
+
 const char *get_arg(int argc, char **argv, char flag)
 {
 	for (int i = 1; i < argc; i++)
@@ -183,14 +206,15 @@ int main(int argc, char **argv)
 			printf("Error changing game data file\n");
 			return 0;
 		}
-		FILE *f = fopen(game_data_file_name, "r");
-		if (!read_game_data_file_until(f, "final_level", 0))
-		{
-			fscanf(f, "%d", &final_level);
-		}
-		fclose(f);
-		printf("The game mod has %d levels\n", final_level);
 	}
+	
+	FROM_GAME_SETTINGS(final_level);
+	FROM_GAME_SETTINGS(enable_high_jump);
+	FROM_GAME_SETTINGS(enable_sprint);
+	FROM_GAME_SETTINGS(enable_weapon);
+	FROM_GAME_SETTINGS(jump_height);
+	FROM_GAME_SETTINGS(high_jump_height);
+	FROM_GAME_SETTINGS(max_lives);
 
 	if (GET_ARG('s'))
 	{
@@ -250,7 +274,8 @@ int main(int argc, char **argv)
 		"ENTER: Teleport to beginning of level\n"
 		"P: Pause\n\n"
 		"Your mission is to collect all\nthe lifecrystals on %d levels.\n\n"
-		"PRESS ENTER\n", final_level);
+		"PRESS ENTER\n",
+		final_level);
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
@@ -282,14 +307,14 @@ game_logic_start:
 	sprite_read(SP_BAT(0));
 	sprite_read(SP_BAT(1));
 
-	lives = 8;
+	lives = max_lives;
 	level = 0;
 
 	if (GET_ARG('L'))
 	{
 		sscanf(GET_ARG('L'), "%d", &level);
 		level -= 1;
-		if (level >= 15 || level < 0)
+		if (level >= final_level || level < 0)
 			level = 0;
 		printf("Start level changed to %d\n", level + 1);
 	}
@@ -572,7 +597,7 @@ game_logic_start:
 		if (keybuffer[ALLEGRO_KEY_RIGHT] && x < 305 && sprint >= 0) // LIIKU OIKEAAN
 		{
 			moving = 1;
-			if (keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
+			if (enable_sprint && keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
 				sprint = 10;
 		}
 		if (sprint > 0)
@@ -620,7 +645,7 @@ game_logic_start:
 		if (keybuffer[ALLEGRO_KEY_LEFT] && x > 5 && sprint <= 0) // LIIKU VASEMPAAN
 		{
 			moving = 1;
-			if (keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
+			if (enable_sprint && keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
 				sprint = -10;
 		}
 		if (sprint < 0)
@@ -666,14 +691,14 @@ game_logic_start:
 		}
 
 		if (keybuffer[ALLEGRO_KEY_UP] && on_platform) // HYPPää!
-			jump = 6;
-		if (high_jump && keybuffer[ALLEGRO_KEY_RSHIFT] && on_platform)
+			jump = jump_height;
+		if (enable_high_jump && high_jump && keybuffer[ALLEGRO_KEY_RSHIFT] && on_platform)
 		{
 			high_jump = 0;
-			jump = 10;
+			jump = high_jump_height;
 		}
 
-		if (keybuffer[ALLEGRO_KEY_DOWN] && weapon <= -20)
+		if (enable_weapon && keybuffer[ALLEGRO_KEY_DOWN] && weapon <= -20)
 		{
 			weapon = 20;
 			set_sfx(20, 19, 18, 0);
