@@ -2,6 +2,7 @@
 #include "game_data.h"
 #include "synth.h"
 #include "common.h"
+#include "graphics.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -11,9 +12,6 @@
 int verbose_logging = 0;
 
 extern char keybuffer[ALLEGRO_KEY_MAX];
-
-void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom, int symmetric);
-void draw_box(int x1, int y1, int x2, int y2, char box_color);
 
 void wait_key_press(int key)
 {
@@ -27,41 +25,7 @@ void wait_key_press(int key)
 	}
 }
 
-void clear_screen_to_color(int col)
-{
-	draw_box(0, 0, 320, 200, col);
-}
-
-void clear_screen_for_text()
-{
-	draw_box_gradient(0, 0, 320, 200, BLUE, BLACK, 0);
-	// clear_screen_to_color(0);
-	clrscr();
-}
-
-#define FLIP al_flip_display()
-
-void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mult);
-void sprite_read(char sprite);
-
 char *result, anim[2], on_platform, jump, sound_state = 1;
-
-#define SP_BAT(x) ((x) == 0 ? 'B' : 'b')
-#define SP_LEFT_FACING(x) ((x) == 0 ? '<' : '{')
-#define SP_RIGHT_FACING(x) ((x) == 0 ? '>' : '}')
-#define SP_DIAMOND 'D'
-#define SP_STONEMAN 'S'
-
-#define SP_PLAYER_W 7
-#define SP_PLAYER_H 16
-
-#define SP_DIAMOND_W 5
-#define SP_DIAMOND_H 6
-
-#define SP_BAT_W 11
-#define SP_BAT_H 5
-
-#define SP_NUM_PX(sp) (SP_##sp##_W * SP_##sp##_H)
 
 char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_NUM_PX(PLAYER)], guy_right2[SP_NUM_PX(PLAYER)], dia_spr[SP_NUM_PX(DIAMOND)], *buf, file_read_buf[20];
 char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
@@ -223,13 +187,13 @@ game_logic_start:
 
 	hiscore = get_highscore();
 
-	sprite_read(SP_LEFT_FACING(0));
-	sprite_read(SP_LEFT_FACING(1));
-	sprite_read(SP_RIGHT_FACING(0));
-	sprite_read(SP_RIGHT_FACING(1));
-	sprite_read(SP_DIAMOND);
-	sprite_read(SP_BAT(0));
-	sprite_read(SP_BAT(1));
+	sprite_read(SP_LEFT_FACING(0), guy_left1);
+	sprite_read(SP_LEFT_FACING(1), guy_left2);
+	sprite_read(SP_RIGHT_FACING(0), guy_right1);
+	sprite_read(SP_RIGHT_FACING(1), guy_right2);
+	sprite_read(SP_DIAMOND, dia_spr);
+	sprite_read(SP_BAT(0), bat1);
+	sprite_read(SP_BAT(1), bat2);
 
 	lives = max_lives;
 	level = 0;
@@ -331,7 +295,7 @@ game_logic_start:
 				clear_screen_for_text();
 				anim[1] = 0;
 
-				sprite_read(SP_STONEMAN);
+				sprite_read(SP_STONEMAN, guy_left1);
 				for (x = 0; x < 210; x = x + 3)
 				{
 					draw_box(0, 0, 320, 200, 0);
@@ -728,89 +692,3 @@ game_logic_start:
 	goto game_logic_start;
 }
 
-#define CALC_GRADIENT(c0, c1, out)                   \
-	temp = c0 + (y - y1) * (c1 - c0) / (y2 - y1);    \
-	temp = temp > 255 ? 255 : (temp < 0 ? 0 : temp); \
-	unsigned char out = temp
-
-void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom, int symmetric)
-{
-	if (symmetric)
-	{
-		draw_box_gradient(x1, y1, x2, y2 - (y2 - y1) / 2, box_color_top, box_color_bottom, 0);
-		draw_box_gradient(x1, y1 + (y2 - y1) / 2, x2, y2, box_color_bottom, box_color_top, 0);
-		return;
-	}
-	x1 *= scaling;
-	x2 *= scaling;
-	y1 *= scaling;
-	y2 *= scaling;
-	unsigned char c0r, c0g, c0b;
-	unsigned char c1r, c1g, c1b;
-	al_unmap_rgb(ega_color(box_color_top), &c0r, &c0g, &c0b);
-	al_unmap_rgb(ega_color(box_color_bottom), &c1r, &c1g, &c1b);
-
-	int temp;
-	for (int y = y1; y < y2; y++)
-	{
-		CALC_GRADIENT(c0r, c1r, r);
-		CALC_GRADIENT(c0g, c1g, g);
-		CALC_GRADIENT(c0b, c1b, b);
-		al_draw_filled_rectangle(x1, y, x2, y + 1, al_map_rgb(r, g, b));
-	}
-}
-
-void draw_box(int x1, int y1, int x2, int y2, char box_color)
-{
-	x1 *= scaling;
-	x2 *= scaling;
-	y1 *= scaling;
-	y2 *= scaling;
-	al_draw_filled_rectangle(x1, y1, x2, y2, ega_color(box_color));
-}
-
-char *get_sprite(char sprite)
-{
-	if (sprite == SP_LEFT_FACING(0) || sprite == SP_STONEMAN)
-		return guy_left1;
-	if (sprite == SP_LEFT_FACING(1))
-		return guy_left2;
-	if (sprite == SP_RIGHT_FACING(0))
-		return guy_right1;
-	if (sprite == SP_RIGHT_FACING(1))
-		return guy_right2;
-	if (sprite == SP_DIAMOND)
-		return dia_spr;
-	if (sprite == SP_BAT(0))
-		return bat1;
-	if (sprite == SP_BAT(1))
-		return bat2;
-	return NULL;
-}
-
-void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mult)
-{
-	char _123x, _123y = 0;
-	int counter = 0;
-	char *sprite_buf = get_sprite(sprite);
-	if (!sprite_buf)
-		return;
-
-	while (area_y * zoom_mult > _123y)
-	{
-		for (_123x = 0; _123x < area_x * zoom_mult; _123x = _123x + zoom_mult)
-		{
-			if (sprite_buf[counter] != TRANSPARENT)
-				draw_box(_x + _123x, _y + _123y, _x + _123x + zoom_mult, _y + _123y + zoom_mult, sprite_buf[counter]);
-			counter++;
-		}
-		_123y = _123y + zoom_mult;
-	}
-}
-void sprite_read(char sprite)
-{
-	char *sprite_buf = get_sprite(sprite);
-	if (!sprite_buf)
-		return;
-	game_data_read_sprite(sprite, sprite_buf);
-}
