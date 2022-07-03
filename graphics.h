@@ -1,5 +1,6 @@
 #ifndef crystal_sprite_h
 #define crystal_sprite_h
+#include "common.h"
 
 #define SP_BAT(x) ((x) == 0 ? 'B' : 'b')
 #define SP_LEFT_FACING(x) ((x) == 0 ? '<' : '{')
@@ -29,5 +30,7 @@ void draw_box(int x1, int y1, int x2, int y2, char box_color);
 void clear_screen_to_color(int col);
 void clear_screen_for_text();
 #define FLIP al_flip_display();
+
+void draw_world(struct level_info *world);
 
 #endif

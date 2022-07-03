@@ -376,7 +376,6 @@ game_logic_start:
 
 			diamonds = world.diamond_count;
 		}
-		draw_box_gradient(0, 0, 320, 200, DARK_GRAY, BLACK, 0);
 
 		if (jump > 0)
 		{
@@ -558,32 +557,7 @@ game_logic_start:
 			set_sfx(20, 19, 18, 0);
 		}
 
-		//*LAUTAT + MUUT*//
-
-		draw_box_gradient(0, 190, 320, 200, BROWN, BRIGHT_YELLOW, 0);
-		for (count = 0; count < world.platform_count; count++)
-		{
-			draw_box_gradient(world.platform_x[count] - 1, world.platform_y[count],
-							  world.platform_x[count] + 50, world.platform_y[count] + 6, BROWN, BRIGHT_YELLOW, 1);
-		}
-		for (count = 0; count < world.wall_count; count++)
-		{
-			draw_box_gradient(world.wall_x[count], world.wall_y[count],
-							  world.wall_x[count] + 5, world.wall_y[count] + 30, BROWN, BRIGHT_YELLOW, 1);
-		}
-
-		for (count = 0; count < world.diamond_count; count++)
-		{
-			if (world.diamond_anim[count] < 10)
-			{
-				sprite_do(world.diamond_x[count], world.diamond_y[count], SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
-				if (world.diamond_anim[count])
-				{
-					world.diamond_y[count] -= 3;
-					world.diamond_anim[count]++;
-				}
-			}
-		}
+		draw_world(&world);
 
 		int weap_x = 999, weap_y = 999;
 		if (weapon > 0)
@@ -613,7 +587,6 @@ game_logic_start:
 				continue;
 			if (world.bat_status[count] == 2)
 			{
-				sprite_do(world.bat_x[count], world.bat_y[count], SP_BAT_W, SP_BAT_H, SP_BAT(1), 2);
 				world.bat_y[count] += 5;
 				if (world.bat_y[count] > 200)
 					world.bat_status[count] = 0;
@@ -662,7 +635,6 @@ game_logic_start:
 				world.bat_x[count] += 1 - 2 * (rand() % 2);
 				world.bat_y[count] += 1 - 2 * (rand() % 2);
 			}
-			sprite_do(world.bat_x[count], world.bat_y[count], SP_BAT_W, SP_BAT_H, SP_BAT(world.bat_x[count] % 2), 2);
 		}
 		sprite_do(x, y - 2, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 

@@ -1,6 +1,5 @@
 #include "allegro_compat.h"
 #include "game_data.h"
-#include "common.h"
 #include <stdio.h>
 #include <string.h>
 
