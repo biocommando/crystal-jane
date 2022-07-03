@@ -16,3 +16,9 @@ gcc -static-libstdc++ pomppu.c allegro_compat.c synth.c music.c -Iinclude ^
  liballegro_primitives.dll.a ^
  liballegro.dll.a ^
  -O3 -o crystal
+
+@echo off
+
+echo crystal.exe gmad_dat.dat %%1 %%2 %%3 %%4 %%5 > super-mad-mode.bat
+
+echo crystal.exe glegacy.dat %%1 %%2 %%3 %%4 %%5 > legacy-mode.bat
