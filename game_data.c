@@ -103,8 +103,6 @@ FILE *get_game_data_file()
     return fopen(game_data_file_name, "r");
 }
 
-#define LEVEL_ID(level) level < 9 ? '1' + level : 'A' + level - 9
-
 void read_level(int level, struct level_info *info)
 {
     memset(info, 0, sizeof(struct level_info));

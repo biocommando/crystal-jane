@@ -21,4 +21,10 @@ struct level_info
     extern int verbose_logging, scaling; \
     extern char keybuffer[ALLEGRO_KEY_MAX]
 
+const char *get_arg(int argc, char **argv, char flag);
+
+#define GET_ARG(flag) get_arg(argc, argv, flag)
+
+#define LEVEL_ID(level) level < 9 ? '1' + level : 'A' + level - 9
+
 #endif
