@@ -329,6 +329,10 @@ game_logic_start:
 	sprite_do(150, 154, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
 	sprite_do(190, 135, SP_BAT_W, SP_BAT_H, SP_BAT(0), 2);
 	screen_printf("Crystal Jane (c) Upr00ted tree software\n        MENU\n       UP: PLAY\n     DOWN: QUIT\n\n\n\n\n\n\n\n        HISCORE: %d\n", hiscore);
+	if (strcmp(game_data_file_name, "gdat.dat"))
+	{
+		screen_printf("\nmod loaded: %s\n", game_data_file_name);
+	}
 	FLIP;
 	set_sfx(20, 30, 40, 50);
 	while (1)
