@@ -25,6 +25,31 @@ void read_game_data_file_until(FILE *f, const char *title, char id)
 	}
 }
 
+int get_best_time_for_level(int level)
+{
+	FILE *f = fopen("best_times.jan", "rb");
+	if (!f)
+		return -1;
+	fseek(f, sizeof(int) * level, SEEK_SET);
+	int tm;
+	fread(&tm, sizeof(int), 1, f);
+	fclose(f);
+	return tm;
+}
+
+void set_best_time_for_level(int level, int best_time)
+{
+	int times[15];
+	for (int i = 0; i < 15; i++)
+	{
+		times[i] = i == level ? best_time : get_best_time_for_level(i);
+	}
+	
+	FILE *f = fopen("best_times.jan", "wb");
+	fwrite(times, sizeof(int), 15, f);
+	fclose(f);
+}
+
 void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom, int symmetric);
 void draw_box(int x1, int y1, int x2, int y2, char box_color);
 
@@ -287,14 +312,25 @@ game_logic_start:
 				score += time_bonus;
 				score += bats_killed;
 				screen_printf(
-					"         LEVEL %d COMPLETE!\n\n"
-					"         COMPLETE TIME    : %.1f SEC\n"
-					"         TIME BONUS       : %d\n\n"
-					"         BATS KILLED BONUS: %d\n\n"
-					"         LIVES LEFT       : %d\n\n"
-					"         TOTAL SCORE      : %d\n\n\n"
-					"         PRESS ENTER",
-					level, beat_time_frames / 20.0f, time_bonus, bats_killed, lives, score);
+					"LEVEL %d COMPLETE!\n\n"
+					"COMPLETE TIME    : %.1f SEC\n                   ", level, beat_time_frames / 20.0f);
+				int best_time = get_best_time_for_level(level - 1);
+				if (beat_time_frames < best_time || best_time < 0)
+				{
+					set_best_time_for_level(level - 1, beat_time_frames);
+					screen_printf("NEW BEST TIME!\n");
+				}
+				else
+				{
+					screen_printf("BEST: %.1f SEC\n", best_time / 20.0f);
+				}
+				screen_printf(
+					"TIME BONUS       : %d\n\n"
+					"BATS KILLED BONUS: %d\n\n"
+					"LIVES LEFT       : %d\n\n"
+					"TOTAL SCORE      : %d\n\n\n"
+					"PRESS ENTER",
+					time_bonus, bats_killed, lives, score);
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 			}
@@ -369,8 +405,10 @@ game_logic_start:
 
 				char level_name[32];
 				fgets(level_name, 32, game_data);
+				float best_time =  get_best_time_for_level(level) / 20.0f;
 
-				screen_printf("         %d: %s\n\n\n\n         PRESS ENTER\n", level + 1, level_name);
+				screen_printf("         %d: %s\n\n         BEST TIME: %.1f SEC\n\n         PRESS ENTER\n",
+					level + 1, level_name, best_time >= 0 ? best_time : 999);
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
