@@ -148,7 +148,7 @@ void read_level(int level, struct level_info *info)
     fclose(game_data);
 }
 
-void game_data_read_sprite(char sprite, char *sprite_buf)
+void game_data_read_sprite(char sprite, char *sprite_buf, int sprite_size)
 {
 	FILE *f = fopen(game_data_file_name, "r");
 	read_game_data_file_until(f, "sprite", sprite);
@@ -156,7 +156,7 @@ void game_data_read_sprite(char sprite, char *sprite_buf)
 	char read_result = '\n';
 	int counter = 0;
 
-	while (read_result != 'E')
+	while (read_result != 'E' && counter < sprite_size)
 	{
 		if (read_result != '\n')
 		{

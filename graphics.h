@@ -19,11 +19,9 @@
 
 #define SP_NUM_PX(sp) (SP_##sp##_W * SP_##sp##_H)
 
-void sprite_read(char sprite, char *sprite_buf);
+void sprite_read(char sprite, char *sprite_buf, int sprite_size);
 
 void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mult);
-
-char *get_sprite(char sprite);
 
 void draw_box_gradient(int x1, int y1, int x2, int y2, char box_color_top, char box_color_bottom, int symmetric);
 void draw_box(int x1, int y1, int x2, int y2, char box_color);

@@ -30,18 +30,6 @@ void wait_key_press(int key)
 		verbose_log("Game setting: " #x " = %d\n", x); \
 	} while (0)
 
-const char *get_arg(int argc, char **argv, char flag)
-{
-	for (int i = 1; i < argc; i++)
-	{
-		if (argv[i][0] == flag)
-			return argv[i] + 1;
-	}
-	return NULL;
-}
-
-#define GET_ARG(flag) get_arg(argc, argv, flag)
-
 int main(int argc, char **argv)
 {
 	char *result, anim[2], on_platform, jump, sound_state = 1;
@@ -183,13 +171,13 @@ game_logic_start:
 
 	hiscore = get_highscore();
 
-	sprite_read(SP_LEFT_FACING(0), guy_left1);
-	sprite_read(SP_LEFT_FACING(1), guy_left2);
-	sprite_read(SP_RIGHT_FACING(0), guy_right1);
-	sprite_read(SP_RIGHT_FACING(1), guy_right2);
-	sprite_read(SP_DIAMOND, dia_spr);
-	sprite_read(SP_BAT(0), bat1);
-	sprite_read(SP_BAT(1), bat2);
+	sprite_read(SP_LEFT_FACING(0), guy_left1, sizeof(guy_left1));
+	sprite_read(SP_LEFT_FACING(1), guy_left2, sizeof(guy_left2));
+	sprite_read(SP_RIGHT_FACING(0), guy_right1, sizeof(guy_right1));
+	sprite_read(SP_RIGHT_FACING(1), guy_right2, sizeof(guy_right2));
+	sprite_read(SP_DIAMOND, dia_spr, sizeof(dia_spr));
+	sprite_read(SP_BAT(0), bat1, sizeof(bat1));
+	sprite_read(SP_BAT(1), bat2, sizeof(bat2));
 
 	lives = max_lives;
 	level = 0;
@@ -291,7 +279,7 @@ game_logic_start:
 				clear_screen_for_text();
 				anim[1] = 0;
 
-				sprite_read(SP_STONEMAN, guy_left1);
+				sprite_read(SP_STONEMAN, guy_left1, sizeof(guy_left1));
 				for (x = 0; x < 210; x = x + 3)
 				{
 					draw_box(0, 0, 320, 200, 0);

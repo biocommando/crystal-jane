@@ -7,32 +7,34 @@ EXTERN_GLOBALS;
 
 #define MAX_SPRITES 16
 
-struct
+struct sprite_cache_entry
 {
     char *buf;
     char id;
+    int sprite_size;
 } sprite_cache[MAX_SPRITES];
 
 int num_sprites = 0;
 
-char *get_sprite(char sprite)
+struct sprite_cache_entry *get_sprite(char sprite)
 {
     for (int i = 0; i < num_sprites; i++)
     {
         if (sprite == sprite_cache[i].id)
-            return sprite_cache[i].buf;
+            return sprite_cache + i;
     }
     return NULL;
 }
 
-void sprite_read(char sprite, char *sprite_buf)
+void sprite_read(char sprite, char *sprite_buf, int sprite_size)
 {
     if (num_sprites < MAX_SPRITES)
     {
         sprite_cache[num_sprites].buf = sprite_buf;
         sprite_cache[num_sprites].id = sprite;
+        sprite_cache[num_sprites].sprite_size = sprite_size;
         num_sprites++;
-        game_data_read_sprite(sprite, sprite_buf);
+        game_data_read_sprite(sprite, sprite_buf, sprite_size);
     }
 }
 
@@ -40,7 +42,8 @@ void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mu
 {
     char _123x, _123y = 0;
     int counter = 0;
-    char *sprite_buf = get_sprite(sprite);
+    struct sprite_cache_entry *sce = get_sprite(sprite);
+    char *sprite_buf = sce->buf;
     if (!sprite_buf)
         return;
 
@@ -51,6 +54,8 @@ void sprite_do(int _x, int _y, int area_x, int area_y, char sprite, char zoom_mu
             if (sprite_buf[counter] != TRANSPARENT)
                 draw_box(_x + _123x, _y + _123y, _x + _123x + zoom_mult, _y + _123y + zoom_mult, sprite_buf[counter]);
             counter++;
+            if (counter == sce->sprite_size)
+                return;
         }
         _123y = _123y + zoom_mult;
     }
