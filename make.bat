@@ -10,7 +10,7 @@ echo #endif >> %file%
 
 @echo on
 gcc -static-libstdc++ -Iinclude ^
- crystal.c allegro_compat.c common.c game_data.c globals.c graphics.c music.c synth.c ^
+ crystal.c allegro_compat.c common.c game_data.c globals.c graphics.c synth.c ^
  liballegro_audio.dll.a ^
  liballegro_font.dll.a ^
  liballegro_image.dll.a ^

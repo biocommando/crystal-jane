@@ -40,6 +40,7 @@ struct synth_voice voices[4];
 struct synth_track_event track[1024];
 int track_pos = 9999;
 int next_event_count = 0;
+int tick_scaling = 256;
 
 static inline float soft_clip(const float f)
 {
@@ -53,7 +54,7 @@ void synth_process(float *buf, int size)
     {
         while (track_pos < 1024 && next_event_count == 0)
         {
-            next_event_count = track[track_pos].offset * 256;
+            next_event_count = track[track_pos].offset * tick_scaling * 16;
             if (track[track_pos].voice == 0xF0)
                 track_pos = 0;
             else if (track[track_pos].voice == 0xF1)
@@ -117,12 +118,24 @@ void trigger_sound(int voice, float freq)
     }
 }
 
-void set_sequence(const char *seq, int size)
+void set_sequence(const char *file)
 {
+    for (int i = 0; i < 4; i++)
+    {
+        voices[i].phase_inc = 0;
+    }
+    FILE *f = fopen(file, "rb");
+    unsigned size;
+    fread(&size, sizeof(unsigned), 1, f);
+    unsigned char read_tick_scaling;
+    fread(&read_tick_scaling, 1, 1, f);
+    tick_scaling = read_tick_scaling;
     track_pos = 0;
     next_event_count = 0;
     if (size < 1024 * 3)
     {
+        char seq[1024 * 3];
+        fread(seq, 1, size,  f);
         int i;
         for (i = 0; i < size / 3; i++)
         {
@@ -131,4 +144,5 @@ void set_sequence(const char *seq, int size)
             track[i].key = seq[i * 3 + 2];
         }
     }
+    fclose(f);
 }

@@ -30,6 +30,22 @@ void wait_key_press(int key)
 		verbose_log("Game setting: " #x " = %d\n", x); \
 	} while (0)
 
+void set_music(int track)
+{
+	static int current_track = -1;
+	if (track == 0)
+		current_track = 0xBADFEED;
+	if (current_track == 0xBADFEED)
+		return;
+	if (current_track != track)
+	{
+		current_track = track;
+		char fname[32];
+		sprintf(fname, "music%d.bin", track);
+		set_sequence(fname);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	char *result, anim[2], on_platform, jump, sound_state = 1;
@@ -131,11 +147,14 @@ int main(int argc, char **argv)
 		wait_key_press(ALLEGRO_KEY_ENTER);
 	}
 
-	if (!GET_ARG('m'))
+	if (GET_ARG('m'))
+	{
+		set_music(0);
+	}
+	else
 	{
 		synth_init(SYNTH_SETTINGS);
-		extern const char my_synth_sequence[2838];
-		set_sequence(my_synth_sequence, 2838);
+		set_music(2);
 	}
 
 	clear_screen_for_text();
@@ -276,6 +295,7 @@ game_logic_start:
 			}
 			if (level == final_level)
 			{
+				set_music(3);
 				clear_screen_for_text();
 				anim[1] = 0;
 
@@ -359,6 +379,7 @@ game_logic_start:
 			high_jump = 1;
 
 			diamonds = world.diamond_count;
+			set_music(1);
 		}
 
 		if (jump > 0)
