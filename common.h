@@ -13,6 +13,15 @@ struct level_info
     char level_name[32];
 };
 
+struct game_settings
+{
+    int final_level, enable_sprint, enable_high_jump, enable_weapon,
+		jump_height, high_jump_height, max_lives, time_counter_limit;
+    int start_level, skip_splash_screen, repeat_level, is_mod;
+};
+
+struct game_settings create_game_settings();
+
 #define verbose_log(...) \
     if (verbose_logging) \
     printf("DEBUG: " __VA_ARGS__)

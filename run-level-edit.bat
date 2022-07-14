@@ -1,6 +1,6 @@
 
 gcc -static-libstdc++ -Iinclude ^
- level_edit.c allegro_compat.c common.c game_data.c globals.c graphics.c music.c synth.c ^
+ level_edit.c allegro_compat.c common.c crystal.c game_data.c globals.c graphics.c synth.c ^
  liballegro_audio.dll.a ^
  liballegro_font.dll.a ^
  liballegro_image.dll.a ^

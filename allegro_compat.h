@@ -63,4 +63,6 @@ void stateful_draw_text(const char *s);
 void set_sfx(int a, int b, int c, int d);
 int get_sfx_pos();
 
+void wait_key_press(int key);
+
 #endif

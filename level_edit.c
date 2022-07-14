@@ -2,6 +2,7 @@
 #include "allegro_compat.h"
 #include "game_data.h"
 #include "graphics.h"
+#include "crystal.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -76,21 +77,10 @@ int main(int argc, char **argv)
     init_allegro(4, 0);
     scaling = 4;
 
-    char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_NUM_PX(PLAYER)], guy_right2[SP_NUM_PX(PLAYER)], dia_spr[SP_NUM_PX(DIAMOND)], *buf, file_read_buf[20];
-    char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
-
     if (GET_ARG('s'))
     {
         set_game_data_file_name(GET_ARG('s'));
     }
-
-    sprite_read(SP_LEFT_FACING(0), guy_left1, sizeof(guy_left1));
-    sprite_read(SP_LEFT_FACING(1), guy_left2, sizeof(guy_left2));
-    sprite_read(SP_RIGHT_FACING(0), guy_right1, sizeof(guy_right1));
-    sprite_read(SP_RIGHT_FACING(1), guy_right2, sizeof(guy_right2));
-    sprite_read(SP_DIAMOND, dia_spr, sizeof(dia_spr));
-    sprite_read(SP_BAT(0), bat1, sizeof(bat1));
-    sprite_read(SP_BAT(1), bat2, sizeof(bat2));
 
     struct level_info world;
 
@@ -111,6 +101,8 @@ int main(int argc, char **argv)
     int x = 160, y = 100;
     int selected_type = 'H';
     int current_object_idx = 0;
+
+    read_sprites();
 
     while (!keybuffer[ALLEGRO_KEY_ESCAPE])
     {
@@ -240,6 +232,17 @@ int main(int argc, char **argv)
                 create_obj(world.bat_x, world.bat_y, &world.bat_count, x, y);
             }
             wait_delay(3);
+        }
+
+        if (keybuffer[ALLEGRO_KEY_F10])
+        {
+            save_level(level, &world, "playtest.dat");
+            extern char game_data_file_name[256];
+            sprintf(game_data_file_name, "playtest.dat");
+            struct game_settings gs = create_game_settings();
+            gs.repeat_level = 1;
+            gs.start_level = level;
+            game_logic(gs);
         }
 
         if (selected_type == 'H')

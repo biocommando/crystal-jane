@@ -9,4 +9,6 @@ void set_sequence(const char *file);
 
 void trigger_sound(int voice, float freq);
 
+void set_music(int track);
+
 #endif

@@ -11,185 +11,17 @@
 
 EXTERN_GLOBALS;
 
-void wait_key_press(int key)
+void read_sprites()
 {
-	while (!keybuffer[key])
-	{
-		wait_event();
-	}
-	while (keybuffer[key])
-	{
-		wait_event();
-	}
-}
-
-#define FROM_GAME_SETTINGS(x)                          \
-	do                                                 \
-	{                                                  \
-		x = read_game_data_setting(#x, x);             \
-		verbose_log("Game setting: " #x " = %d\n", x); \
-	} while (0)
-
-void set_music(int track)
-{
-	static int current_track = -1;
-	if (track == 0)
-		current_track = 0xBADFEED;
-	if (current_track == 0xBADFEED)
-		return;
-	if (current_track != track)
-	{
-		current_track = track;
-		char fname[32];
-		sprintf(fname, "music%d.bin", track);
-		set_sequence(fname);
-	}
-}
-
-int main(int argc, char **argv)
-{
-	char *result, anim[2], on_platform, jump, sound_state = 1;
-
-	char guy_left1[SP_NUM_PX(PLAYER)], guy_left2[SP_NUM_PX(PLAYER)], guy_right1[SP_NUM_PX(PLAYER)], guy_right2[SP_NUM_PX(PLAYER)], dia_spr[SP_NUM_PX(DIAMOND)], *buf, file_read_buf[20];
-	char bat1[SP_NUM_PX(BAT)], bat2[SP_NUM_PX(BAT)];
-	// 7*16 = 112   ;  5*6 = 30
-
-	int y, x, lives, diamonds, time_counter, level, count, hiscore = 0;
-	int score = 0;
-	int final_level = 15;
-
-	// game settings
-	int enable_sprint = 1, enable_high_jump = 1, enable_weapon = 1,
-		jump_height = 6, high_jump_height = 10, max_lives = 8, time_counter_limit = 350;
-	printf(
-		"CRYSTAL JANE\n\nversion " VERSION " - Built on " BUILD_DATE
-		"\nCopyrights 2004-2022 by Joonas Salonpaa\nMIT licensed\n");
-	if (GET_ARG('v'))
-	{
-		verbose_logging = 1;
-		verbose_log("Verbose logging enabled\n");
-	}
-	if (GET_ARG('h'))
-	{
-		printf(
-			"\n"
-			"Available command line arguments:\n\n"
-			"  command   | description\n"
-			"--------------------------------------------------------------------------------\n"
-			"    h       | Show this help\n"
-			"    m       | Disable music\n"
-			"    s       | Disable sound\n"
-			"            | Note: if both m and s are given the sound driver won't be loaded\n"
-			"            | at all.\n"
-			"    w       | Wait for ENTER press before anything.\n"
-			"            | Makes it easier for screen recording to capture also the beginning\n"
-			"            | of the game.\n"
-			"    L[NUM]  | Skip to [NUM] level (1...15).\n"
-			"            | When this option is selected highscore is not saved.\n"
-			"    r       | Enable replay more that prevents level progression\n"
-			"    S       | Disable ending splash screen\n"
-			"    v       | Enable verbose logging\n"
-			"    g[FILE] | Change game data file to [FILE] (default 'gdat.dat')\n"
-			"    a[SIZE] | Audio buffer size (2^n), default 1024\n");
-		return 0;
-	}
-
-	printf("Run with '%s h' to see help on command line options\n", argv[0]);
-
-	if (GET_ARG('g'))
-	{
-		printf("Change game data file to %s\n", GET_ARG('g'));
-		if (set_game_data_file_name(GET_ARG('g')))
-		{
-			printf("Error changing game data file\n");
-			return 0;
-		}
-	}
-
-	FROM_GAME_SETTINGS(final_level);
-	FROM_GAME_SETTINGS(enable_high_jump);
-	FROM_GAME_SETTINGS(enable_sprint);
-	FROM_GAME_SETTINGS(enable_weapon);
-	FROM_GAME_SETTINGS(jump_height);
-	FROM_GAME_SETTINGS(high_jump_height);
-	FROM_GAME_SETTINGS(max_lives);
-	FROM_GAME_SETTINGS(time_counter_limit);
-
-	if (GET_ARG('s'))
-	{
-		set_sfx_off(GET_ARG('m') ? OPT_ALL_SOUND_OFF : OPT_SFX_OFF);
-	}
-
-	if (GET_ARG('x'))
-	{
-		sscanf(GET_ARG('x'), "%d", &scaling);
-		if (!(scaling > 0 && scaling <= 8))
-			scaling = 1;
-		printf("Changed scaling to %d\n", scaling);
-	}
-
-	int audio_buf_size_override = 0;
-
-	if (GET_ARG('a'))
-	{
-		sscanf(GET_ARG('a'), "%d", &audio_buf_size_override);
-		printf("Using audio buffer size %d\n", audio_buf_size_override);
-	}
-
-	if (init_allegro(scaling, audio_buf_size_override))
-	{
-		printf("Init allegro failed");
-		return 0;
-	}
-
-	if (GET_ARG('w'))
-	{
-		wait_key_press(ALLEGRO_KEY_ENTER);
-	}
-
-	if (GET_ARG('m'))
-	{
-		set_music(0);
-	}
-	else
-	{
-		synth_init(SYNTH_SETTINGS);
-		set_music(2);
-	}
-
-	clear_screen_for_text();
-	screen_printf("HI!\nWelcome to Crystal Jane\n\nStory:\nJane has been ten years in a prison\n");
-	screen_printf("of a cruel stoneman.\nOne day stoneman says to free Jane\nif she collects all");
-	screen_printf(" the lifecrystals\non that planet...\n\nPRESS ENTER\n");
-	FLIP;
-	wait_key_press(ALLEGRO_KEY_ENTER);
-	set_sfx(20, 30, 40, 50);
-	clear_screen_for_text();
-
-	screen_printf(
-		"Game controls:\n--------------\n"
-		"LEFT / RIGHT: Move left / right\n"
-		"RCTRL + LEFT / RIGHT: Sprint left / right\n"
-		"UP: Jump\n"
-		"RSHIFT: High jump (once in level)\n"
-		"DOWN: Use the bat-killing morningstar\n"
-		"ENTER: Teleport to beginning of level\n"
-		"P: Pause\n\n"
-		"Your mission is to collect all\nthe lifecrystals on %d levels.\n\n"
-		"PRESS ENTER\n",
-		final_level);
-	FLIP;
-	wait_key_press(ALLEGRO_KEY_ENTER);
-	set_sfx(20, 30, 40, 50);
-	clear_screen_for_text();
-	screen_printf("You can see your lives in the\nupper left corner\nand time running next to it...\nBest of luck for you!\n\nPRESS ENTER\n");
-	FLIP;
-	wait_key_press(ALLEGRO_KEY_ENTER);
-game_logic_start:
-	screen_printf("LOADING SPRITES...\n");
-
-	hiscore = get_highscore();
-
+	static char guy_left1[SP_NUM_PX(PLAYER)],
+		guy_left2[SP_NUM_PX(PLAYER)],
+		guy_right1[SP_NUM_PX(PLAYER)],
+		guy_right2[SP_NUM_PX(PLAYER)],
+		dia_spr[SP_NUM_PX(DIAMOND)],
+		bat1[SP_NUM_PX(BAT)],
+		bat2[SP_NUM_PX(BAT)],
+		stoneman[SP_NUM_PX(PLAYER)];
+		
 	sprite_read(SP_LEFT_FACING(0), guy_left1, sizeof(guy_left1));
 	sprite_read(SP_LEFT_FACING(1), guy_left2, sizeof(guy_left2));
 	sprite_read(SP_RIGHT_FACING(0), guy_right1, sizeof(guy_right1));
@@ -197,17 +29,28 @@ game_logic_start:
 	sprite_read(SP_DIAMOND, dia_spr, sizeof(dia_spr));
 	sprite_read(SP_BAT(0), bat1, sizeof(bat1));
 	sprite_read(SP_BAT(1), bat2, sizeof(bat2));
+	sprite_read(SP_STONEMAN, stoneman, sizeof(stoneman));
+}
 
-	lives = max_lives;
+int game_logic(struct game_settings gmsettings)
+{
+	char *result, anim[2], on_platform, jump, sound_state = 1;
+
+	char *buf, file_read_buf[20];
+
+	int y, x, lives, diamonds, time_counter, level, count, hiscore = 0;
+	int score = 0;
+	screen_printf("LOADING SPRITES...\n");
+
+	hiscore = get_highscore();
+
+
+	lives = gmsettings.max_lives;
 	level = 0;
 
-	if (GET_ARG('L'))
+	if (gmsettings.start_level)
 	{
-		sscanf(GET_ARG('L'), "%d", &level);
-		level -= 1;
-		if (level >= final_level || level < 0)
-			level = 0;
-		printf("Start level changed to %d\n", level + 1);
+		level = gmsettings.start_level;
 	}
 
 	anim[0] = SP_RIGHT_FACING(0);
@@ -220,7 +63,7 @@ game_logic_start:
 	sprite_do(150, 154, SP_DIAMOND_W, SP_DIAMOND_H, SP_DIAMOND, 2);
 	sprite_do(190, 135, SP_BAT_W, SP_BAT_H, SP_BAT(0), 2);
 	screen_printf("Crystal Jane (c) Upr00ted tree software\n        MENU\n       UP: PLAY\n     DOWN: QUIT\n\n\n\n\n\n\n\n        HISCORE: %d\n", hiscore);
-	if (GET_ARG('g'))
+	if (gmsettings.is_mod)
 	{
 		extern char game_data_file_name[256];
 		screen_printf("\nmod loaded: %s\n", game_data_file_name);
@@ -238,9 +81,9 @@ game_logic_start:
 			screen_printf("+********************+\n* THANKS FOR PLAYING *\n*    CRYSTAL JANE    *\n+********************+\n");
 			screen_printf("Crystal Jane (c) Upr00ted tree software\nAll comments to: joonas1000@gmail.com\n");
 			FLIP;
-			if (!GET_ARG('S'))
+			if (!gmsettings.skip_splash_screen)
 				wait_delay(60);
-			exit(1);
+			return -1;
 		}
 
 		if (keybuffer[ALLEGRO_KEY_UP])
@@ -293,13 +136,11 @@ game_logic_start:
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 			}
-			if (level == final_level)
+			if (level == gmsettings.final_level)
 			{
 				set_music(3);
 				clear_screen_for_text();
 				anim[1] = 0;
-
-				sprite_read(SP_STONEMAN, guy_left1, sizeof(guy_left1));
 				for (x = 0; x < 210; x = x + 3)
 				{
 					draw_box(0, 0, 320, 200, 0);
@@ -339,7 +180,7 @@ game_logic_start:
 							  "TOTAL SCORE: %d\n",
 							  lives * 1000, score);
 
-				if (score > hiscore && !GET_ARG('L')) // Hiscore logic disabled if level jump is used
+				if (score > hiscore && !gmsettings.start_level) // Hiscore logic disabled if level jump is used
 				{
 					set_highscore(score);
 					screen_printf("NEW HISCORE!\n");
@@ -350,7 +191,7 @@ game_logic_start:
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 				wait_delay(5);
-				goto game_logic_start;
+				return 0;
 			}
 
 			read_level(level, &world);
@@ -368,7 +209,7 @@ game_logic_start:
 
 			initial_frame_counter = get_frame_counter();
 			time_counter = 0;
-			if (!GET_ARG('r'))
+			if (!gmsettings.repeat_level)
 				level++;
 			jump = -1;
 			on_platform = 1;
@@ -453,7 +294,7 @@ game_logic_start:
 		if (keybuffer[ALLEGRO_KEY_RIGHT] && x < 305 && sprint >= 0) // LIIKU OIKEAAN
 		{
 			moving = 1;
-			if (enable_sprint && keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
+			if (gmsettings.enable_sprint && keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
 				sprint = 10;
 		}
 		if (sprint > 0)
@@ -502,7 +343,7 @@ game_logic_start:
 		if (keybuffer[ALLEGRO_KEY_LEFT] && x > 5 && sprint <= 0) // LIIKU VASEMPAAN
 		{
 			moving = 1;
-			if (enable_sprint && keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
+			if (gmsettings.enable_sprint && keybuffer[ALLEGRO_KEY_RCTRL] && sprint == 0 && on_platform)
 				sprint = -10;
 		}
 		if (sprint < 0)
@@ -549,14 +390,14 @@ game_logic_start:
 		}
 
 		if (keybuffer[ALLEGRO_KEY_UP] && on_platform) // HYPPää!
-			jump = jump_height;
-		if (enable_high_jump && high_jump && keybuffer[ALLEGRO_KEY_RSHIFT] && on_platform)
+			jump = gmsettings.jump_height;
+		if (gmsettings.enable_high_jump && high_jump && keybuffer[ALLEGRO_KEY_RSHIFT] && on_platform)
 		{
 			high_jump = 0;
-			jump = high_jump_height;
+			jump = gmsettings.high_jump_height;
 		}
 
-		if (enable_weapon && keybuffer[ALLEGRO_KEY_DOWN] && weapon <= -20)
+		if (gmsettings.enable_weapon && keybuffer[ALLEGRO_KEY_DOWN] && weapon <= -20)
 		{
 			weapon = 20;
 			set_sfx(20, 19, 18, 0);
@@ -649,12 +490,12 @@ game_logic_start:
 		draw_box_gradient(125, 1, 125 + (175 - time_counter / 2), 6, RED, BRIGHT_RED, 1); // PIIRRä AIKA
 
 		time_counter++;
-		if (time_counter > time_counter_limit)
+		if (time_counter > gmsettings.time_counter_limit)
 		{
 			lives--;
 			time_counter = 0;
 		}
-		if (time_counter > time_counter_limit - 50)
+		if (time_counter > gmsettings.time_counter_limit - 50)
 		{
 			set_sfx(10 * sound_state, 0, 0, 0);
 		}
@@ -662,9 +503,9 @@ game_logic_start:
 		wait_delay(1);
 	}
 	clear_screen_for_text();
-	screen_printf("         GAME OVER\nYOU REACHED LEVEL: %d / %d\n\n\n\n\n    PRESS ENTER", level, final_level);
+	screen_printf("         GAME OVER\nYOU REACHED LEVEL: %d / %d\n\n\n\n\n    PRESS ENTER", level, gmsettings.final_level);
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
-	goto game_logic_start;
+	return 0;
 }

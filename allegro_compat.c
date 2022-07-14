@@ -223,3 +223,15 @@ void stateful_draw_text(const char *s)
         screen_curs_x += 8;
     }
 }
+
+void wait_key_press(int key)
+{
+	while (!keybuffer[key])
+	{
+		wait_event();
+	}
+	while (keybuffer[key])
+	{
+		wait_event();
+	}
+}

@@ -146,3 +146,19 @@ void set_sequence(const char *file)
     }
     fclose(f);
 }
+
+void set_music(int track)
+{
+	static int current_track = -1;
+	if (track == 0)
+		current_track = 0xBADFEED;
+	if (current_track == 0xBADFEED)
+		return;
+	if (current_track != track)
+	{
+		current_track = track;
+		char fname[32];
+		sprintf(fname, "music%d.bin", track);
+		set_sequence(fname);
+	}
+}
