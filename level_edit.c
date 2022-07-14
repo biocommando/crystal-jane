@@ -25,10 +25,12 @@ void save_level(int level, struct level_info *info, const char *filename)
     FILE *f = fopen(filename, "w");
     fprintf(f, "@level %c\n", LEVEL_ID(level));
     fprintf(f, "%s", info->level_name);
+    if (info->init_x != 15 || info->init_y != 160)
+        save_level_data(f, &info->init_x, &info->init_y, 1, 'P');
     save_level_data(f, info->platform_x, info->platform_y, info->platform_count, 'H');
     save_level_data(f, info->wall_x, info->wall_y, info->wall_count, 'V');
     save_level_data(f, info->diamond_x, info->diamond_y, info->diamond_count, 'D');
-    save_level_data(f, info->bat_x, info->bat_y, info->bat_count, 'B');
+    save_level_data(f, info->bat_x, info->bat_y, info->bat_count, 'B');    
     fclose(f);
 }
 
@@ -96,6 +98,8 @@ int main(int argc, char **argv)
     {
         memset(&world, 0, sizeof(struct level_info));
         memset(world.bat_status, 1, sizeof(world.bat_status));
+        world.init_x = 15;
+        world.init_y = 160;
     }
 
     int x = 160, y = 100;
@@ -107,7 +111,7 @@ int main(int argc, char **argv)
     while (!keybuffer[ALLEGRO_KEY_ESCAPE])
     {
         draw_world(&world);
-        sprite_do(15, 160, SP_PLAYER_W, SP_PLAYER_H, SP_RIGHT_FACING(0), 2);
+        sprite_do(world.init_x, world.init_y, SP_PLAYER_W, SP_PLAYER_H, SP_RIGHT_FACING(0), 2);
 
         if (keybuffer[ALLEGRO_KEY_LEFT])
             x -= keybuffer[ALLEGRO_KEY_ALT] ? 1 : 5;
@@ -125,6 +129,8 @@ int main(int argc, char **argv)
             selected_type = 'D';
         if (keybuffer[ALLEGRO_KEY_B])
             selected_type = 'B';
+        if (keybuffer[ALLEGRO_KEY_P])
+            selected_type = 'P';
 
         if (keybuffer[ALLEGRO_KEY_SPACE])
         {
@@ -191,6 +197,11 @@ int main(int argc, char **argv)
                 world.bat_x[current_object_idx] = x;
                 world.bat_y[current_object_idx] = y;
             }
+            if (selected_type == 'P')
+            {
+                world.init_x = x;
+                world.init_y = y;
+            }
         }
         
         if (keybuffer[ALLEGRO_KEY_DELETE])
@@ -253,6 +264,8 @@ int main(int argc, char **argv)
             al_draw_circle(x * scaling, y * scaling, 10, al_map_rgb(255, 128, 128), 4);
         if (selected_type == 'B')
             al_draw_circle(x * scaling, y * scaling, 10, al_map_rgb(64, 64, 255), 4);
+        if (selected_type == 'P')
+            al_draw_circle(x * scaling, y * scaling, 10, al_map_rgb(0, 255, 0), 4);
 
         FLIP;
         wait_delay(1);

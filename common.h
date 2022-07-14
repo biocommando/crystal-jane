@@ -10,6 +10,7 @@ struct level_info
         bat_x[MAX_OBJ], bat_y[MAX_OBJ], bat_status[MAX_OBJ],
         diamond_anim[MAX_OBJ];
     int platform_count, wall_count, diamond_count, bat_count;
+    int init_x, init_y;
     char level_name[32];
 };
 

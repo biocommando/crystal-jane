@@ -213,8 +213,8 @@ int game_logic(struct game_settings gmsettings)
 				level++;
 			jump = -1;
 			on_platform = 1;
-			x = 15;
-			y = 160;
+			x = world.init_x;
+			y = world.init_y;
 			bats_killed = 0;
 			sprint = 0;
 			high_jump = 1;
@@ -283,8 +283,8 @@ int game_logic(struct game_settings gmsettings)
 
 		if (keybuffer[ALLEGRO_KEY_ENTER]) // ALOITA ALUSTA
 		{
-			x = 15;
-			y = 160;
+			x = world.init_x;
+			y = world.init_y;
 			on_platform = 1;
 			jump = -1;
 			set_sfx(10, 20, 30, 40);
@@ -454,8 +454,8 @@ int game_logic(struct game_settings gmsettings)
 			{
 				lives--;
 				world.bat_status[count] = 2;
-				x = 15;
-				y = 160;
+				x = world.init_x;
+				y = world.init_y;
 				on_platform = 1;
 				jump = -1;
 				draw_box(0, 0, 320, 200, BRIGHT_RED);

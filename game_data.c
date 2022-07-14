@@ -107,6 +107,8 @@ void read_level(int level, struct level_info *info)
 {
     memset(info, 0, sizeof(struct level_info));
     memset(info->bat_status, 1, sizeof(info->bat_status));
+    info->init_x = 15;
+    info->init_y = 160;
     FILE *game_data = get_game_data_file();
     read_game_data_file_until(game_data, "level", LEVEL_ID(level));
     fgets(info->level_name, 32, game_data);
@@ -141,6 +143,11 @@ void read_level(int level, struct level_info *info)
             info->bat_x[info->bat_count] = rx;
             info->bat_y[info->bat_count] = ry;
             info->bat_count++;
+        }
+        else if (type == 'P')
+        {
+            info->init_x = rx;
+            info->init_y = ry;
         }
     }
     fclose(game_data);
