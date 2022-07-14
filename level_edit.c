@@ -30,7 +30,7 @@ void save_level(int level, struct level_info *info, const char *filename)
     save_level_data(f, info->platform_x, info->platform_y, info->platform_count, 'H');
     save_level_data(f, info->wall_x, info->wall_y, info->wall_count, 'V');
     save_level_data(f, info->diamond_x, info->diamond_y, info->diamond_count, 'D');
-    save_level_data(f, info->bat_x, info->bat_y, info->bat_count, 'B');    
+    save_level_data(f, info->bat_x, info->bat_y, info->bat_count, 'B');
     fclose(f);
 }
 
@@ -73,6 +73,21 @@ int main(int argc, char **argv)
             "i[FILE] = input file (if none given, create new level)\n"
             "o[FILE] = output file\n");
     }
+
+    printf("Controls:\n"
+           "ARROWS = move\n"
+           "ARROWS + ALT = precise move\n"
+           "H = select type: horizontal platform\n"
+           "V = select type: vertical platform\n"
+           "D = select type: diamond\n"
+           "B = select type: bat\n"
+           "P = select type: player\n"
+           "SPACE = select closes object (does not apply to player)\n"
+           "INSERT = add new object of selected type\n"
+           "DELETE = delete selected object\n"
+           "M = move selected object\n"
+           "F10 = play test\n"
+           "ESC = exit and save\n");
 
     set_sfx_off(OPT_ALL_SOUND_OFF);
 
@@ -203,7 +218,7 @@ int main(int argc, char **argv)
                 world.init_y = y;
             }
         }
-        
+
         if (keybuffer[ALLEGRO_KEY_DELETE])
         {
             if (selected_type == 'H' && world.platform_count > current_object_idx)
@@ -223,7 +238,7 @@ int main(int argc, char **argv)
                 world.bat_x[current_object_idx] = 999;
             }
         }
-        
+
         if (keybuffer[ALLEGRO_KEY_INSERT])
         {
             if (selected_type == 'H')
