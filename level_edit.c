@@ -83,7 +83,7 @@ int main(int argc, char **argv)
            "D = select type: diamond\n"
            "B = select type: bat\n"
            "P = select type: player\n"
-           "SPACE = select closes object (does not apply to player)\n"
+           "SPACE = select closest object (does not apply to player)\n"
            "INSERT = add new object of selected type\n"
            "DELETE = delete selected object\n"
            "M = move selected object\n"
