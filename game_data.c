@@ -155,26 +155,26 @@ void read_level(int level, struct level_info *info)
 
 void game_data_read_sprite(char sprite, char *sprite_buf, int sprite_size)
 {
-	FILE *f = fopen(game_data_file_name, "r");
-	read_game_data_file_until(f, "sprite", sprite);
+    FILE *f = get_game_data_file();
+    read_game_data_file_until(f, "sprite", sprite);
 
-	char read_result = '\n';
-	int counter = 0;
+    char read_result = '\n';
+    int counter = 0;
 
-	while (read_result != 'E' && counter < sprite_size)
-	{
-		if (read_result != '\n')
-		{
-			if (read_result == ' ')
-				sprite_buf[counter] = TRANSPARENT;
-			// Skin color was done using some weird hack, let's do less weird hack
-			else if (read_result == '*')
-				sprite_buf[counter] = SKIN;
-			else
-				sprite_buf[counter] = read_result - 47;
+    while (read_result != 'E' && counter < sprite_size)
+    {
+        if (read_result != '\n')
+        {
+            if (read_result == ' ')
+                sprite_buf[counter] = TRANSPARENT;
+            // Skin color was done using some weird hack, let's do less weird hack
+            else if (read_result == '*')
+                sprite_buf[counter] = SKIN;
+            else
+                sprite_buf[counter] = read_result - 47;
 
-			counter++;
-		}
-		read_result = fgetc(f);
-	}
+            counter++;
+        }
+        read_result = fgetc(f);
+    }
 }
