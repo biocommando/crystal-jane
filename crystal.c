@@ -239,7 +239,7 @@ int game_logic(struct game_settings gmsettings)
 			for (count = 0; count < world.platform_count; count++)
 			{
 				if (world.platform_x[count] + 50 > x && world.platform_x[count] - 14 < x &&
-					world.platform_y[count] + 1 < y + 32 && world.platform_y[count] + 4 > y + 32)
+					world.platform_y[count] + 1 <= y + 32 && world.platform_y[count] + 4 > y + 32)
 				{
 					on_platform = 1;
 					jump = -1;
