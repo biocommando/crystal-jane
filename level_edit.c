@@ -72,6 +72,7 @@ int main(int argc, char **argv)
             "s[FILE] = sprite file\n"
             "i[FILE] = input file (if none given, create new level)\n"
             "o[FILE] = output file\n");
+        return 0;
     }
 
     printf("Controls:\n"
@@ -94,11 +95,6 @@ int main(int argc, char **argv)
     init_allegro(4, 0);
     scaling = 4;
 
-    if (GET_ARG('s'))
-    {
-        set_game_data_file_name(GET_ARG('s'));
-    }
-
     struct level_info world;
 
     int level = 0;
@@ -113,8 +109,14 @@ int main(int argc, char **argv)
     {
         memset(&world, 0, sizeof(struct level_info));
         memset(world.bat_status, 1, sizeof(world.bat_status));
+        sprintf(world.level_name, "untitled\n");
         world.init_x = 15;
         world.init_y = 160;
+    }
+
+    if (GET_ARG('s'))
+    {
+        set_game_data_file_name(GET_ARG('s'));
     }
 
     int x = 160, y = 100;
