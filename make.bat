@@ -23,3 +23,5 @@ gcc -static-libstdc++ -Iinclude ^
 echo crystal.exe gmad_dat.dat %%1 %%2 %%3 %%4 %%5 > super-mad-mode.bat
 
 echo crystal.exe glegacy.dat %%1 %%2 %%3 %%4 %%5 > legacy-mode.bat
+
+echo crystal.exe modern.dat %%1 %%2 %%3 %%4 %%5 > modern-mode.bat
