@@ -564,3 +564,61 @@ Final Jumpfest
 
 @final_level
 10
+
+@max_lives
+5
+
+@story 0
+HI!
+Welcome to Orb Jake
+
+Story:
+Jake is obsessed with shiny orbs that
+occur naturally on the planet where
+he lives. One day he enters a cursed
+cave that he can escape only if he
+can collect all the orbs there.
+@end
+
+@story 1
+Game controls:
+--------------
+LEFT / RIGHT: Move left / right
+RCTRL + LEFT / RIGHT: Sprint left / right
+UP: Jump
+RSHIFT: High jump (once in level)
+DOWN: Use the bat-killing morningstar
+ENTER: Teleport to beginning of level
+P: Pause
+
+Your mission is to collect all
+the shiny orbs on 10 levels.
+@end
+
+@story 2
+You can see your lives in the
+upper left corner
+and time running next to it...
+Best of luck for you!
+@end
+
+
+@story 3
+JAKE: CAVE! LISTEN!
+I have now collected all the orbs!
+Can I FINALLY leave?
+@end
+
+@story 4
+The cave entrance cracks open
+letting daylight shine into
+the darkness.
+
+A ghostly voice whispers:
+YOU CAN GOOO NOOOOW!
+@end
+
+@story 5
+CONGRATULATIONS!!!
+YOU HAVE COMPLETED ORB JAKE!
+@end

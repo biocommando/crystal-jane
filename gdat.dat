@@ -791,3 +791,54 @@ THE LAST ORDEAL
 172 85 D
 193 46 D
 283 112 D
+
+
+@story 0
+HI!
+Welcome to Crystal Jane
+
+Story:
+Jane has been ten years in a prison
+of a cruel stoneman.
+One day stoneman says to free Jane
+if she collects all the lifecrystals
+on that planet...
+@end
+
+@story 1
+Game controls:
+--------------
+LEFT / RIGHT: Move left / right
+RCTRL + LEFT / RIGHT: Sprint left / right
+UP: Jump
+RSHIFT: High jump (once in level)
+DOWN: Use the bat-killing morningstar
+ENTER: Teleport to beginning of level
+P: Pause
+
+Your mission is to collect all
+the lifecrystals on 15 levels.
+@end
+
+@story 2
+You can see your lives in the
+upper left corner
+and time running next to it...
+Best of luck for you!
+@end
+
+
+@story 3
+JANE: NOW I HAVE COLLECTED
+ALL THE CRYSTALS!
+@end
+
+@story 4
+STONEMAN: YES. I SEE.
+NOW YOU'LL BE FREE TO GO...
+@end
+
+@story 5
+CONGRATULATIONS!!!
+YOU HAVE COMPLETED CRYSTAL JANE!
+@end

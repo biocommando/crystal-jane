@@ -178,3 +178,22 @@ void game_data_read_sprite(char sprite, char *sprite_buf, int sprite_size)
         read_result = fgetc(f);
     }
 }
+
+void get_story(char *story, int max_len, char id)
+{
+    FILE *f = get_game_data_file();
+    read_game_data_file_until(f, "story", id);
+    story[0] = 0;
+
+    while (1)
+    {
+        char buf[100];
+        fgets(buf, sizeof(buf), f);
+        if (feof(f) || buf[0] == '@')
+            break;
+        if (strlen(story) + strlen(buf) >= max_len)
+            break;
+        strcat(story, buf);
+    }
+    fclose(f);
+}

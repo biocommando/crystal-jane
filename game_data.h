@@ -23,4 +23,6 @@ void read_level(int level, struct level_info *info);
 
 void game_data_read_sprite(char sprite, char *sprite_buf, int sprite_size);
 
+void get_story(char *story, int max_len, char id);
+
 #endif

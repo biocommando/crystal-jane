@@ -132,31 +132,22 @@ int main(int argc, char **argv)
 	}
 
 	clear_screen_for_text();
-	screen_printf("HI!\nWelcome to Crystal Jane\n\nStory:\nJane has been ten years in a prison\n");
-	screen_printf("of a cruel stoneman.\nOne day stoneman says to free Jane\nif she collects all");
-	screen_printf(" the lifecrystals\non that planet...\n\nPRESS ENTER\n");
+	char story[1000];
+	get_story(story, sizeof(story), '0');
+	screen_printf("%s\n\nPRESS ENTER\n", story);
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
 	clear_screen_for_text();
 
-	screen_printf(
-		"Game controls:\n--------------\n"
-		"LEFT / RIGHT: Move left / right\n"
-		"RCTRL + LEFT / RIGHT: Sprint left / right\n"
-		"UP: Jump\n"
-		"RSHIFT: High jump (once in level)\n"
-		"DOWN: Use the bat-killing morningstar\n"
-		"ENTER: Teleport to beginning of level\n"
-		"P: Pause\n\n"
-		"Your mission is to collect all\nthe lifecrystals on %d levels.\n\n"
-		"PRESS ENTER\n",
-		gmsettings.final_level);
+	get_story(story, sizeof(story), '1');
+	screen_printf("%s\n\nPRESS ENTER\n", story);
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 	set_sfx(20, 30, 40, 50);
 	clear_screen_for_text();
-	screen_printf("You can see your lives in the\nupper left corner\nand time running next to it...\nBest of luck for you!\n\nPRESS ENTER\n");
+	get_story(story, sizeof(story), '2');
+	screen_printf("%s\n\nPRESS ENTER\n", story);
 	FLIP;
 	wait_key_press(ALLEGRO_KEY_ENTER);
 

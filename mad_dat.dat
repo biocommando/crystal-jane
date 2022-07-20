@@ -487,3 +487,56 @@ Sweet Killer
            
            
            E
+
+
+@story 0
+HI!
+Welcome to SuperMaD
+
+Story:
+Once after a night of heavy drinking
+a pink elephant apparead. He took
+SuperMaD's all drugs and scattered
+them all over the streets.
+Now you are trapped within your mind
+with hallucinations caused by your
+withdrawal symptoms. There's only one
+way you can make them go away once
+and for all...
+@end
+
+@story 1
+Game controls:
+--------------
+LEFT / RIGHT: Move left / right
+RCTRL + LEFT / RIGHT: Sprint left / right
+UP: Jump
+ENTER: Teleport to beginning of level
+P: Pause
+
+Your mission is to collect all
+the drugs on 9 levels.
+@end
+
+@story 2
+You can see your lives in the
+upper left corner
+and time running next to it...
+Best of luck for you!
+@end
+
+
+@story 3
+SuperMaD: NOW I HAVE COLLECTED
+DRUGS!
+@end
+
+@story 4
+PINK ELEPHANT: YES. I SEE.
+NOW YOU'LL BE FREE TO GO...
+@end
+
+@story 5
+CONGRATULATIONS!!!
+YOU HAVE COMPLETED SuperMaD!
+@end

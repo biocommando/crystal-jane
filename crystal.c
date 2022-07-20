@@ -161,14 +161,17 @@ int game_logic(struct game_settings gmsettings)
 				clear_screen_for_text();
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
-				screen_printf("JANE: NOW I HAVE COLLECTED\nALL THE CRYSTALS!\n[ENTER]\n");
+				char story[1000];
+				get_story(story, sizeof(story), '3');
+				screen_printf("%s\n\nPRESS ENTER\n", story);
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
 				clear_screen_for_text();
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
-				screen_printf("STONEMAN: YES. I SEE.\nNOW YOU'LL BE FREE TO GO...\n[ENTER]\n");
+				get_story(story, sizeof(story), '4');
+				screen_printf("%s\n\nPRESS ENTER\n", story);
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 				set_sfx(20, 30, 40, 50);
@@ -176,17 +179,17 @@ int game_logic(struct game_settings gmsettings)
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
 				score += lives * 1000;
-				screen_printf("CONGRATULATIONS!!!\nYOU HAVE COMPLETED CRYSTAL JANE!\n\nLIVES BONUS: %d\n"
-							  "TOTAL SCORE: %d\n",
-							  lives * 1000, score);
+				get_story(story, sizeof(story), '5');
+				screen_printf("%s\n\nLIVES BONUS: %d\n"
+							  "TOTAL SCORE: %d\n", story, lives * 1000, score);
 
 				if (score > hiscore && !gmsettings.start_level) // Hiscore logic disabled if level jump is used
 				{
 					set_highscore(score);
-					screen_printf("NEW HISCORE!\n");
+					screen_printf("NEW HISCORE!\n\nPRESS ENTER\n");
 				}
 				else
-					screen_printf("HISCORE: %d\n", hiscore);
+					screen_printf("HISCORE: %d\n\nPRESS ENTER\n", hiscore);
 
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
