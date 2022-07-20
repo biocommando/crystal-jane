@@ -270,6 +270,8 @@ int main(int argc, char **argv)
             struct game_settings gs = create_game_settings();
             gs.repeat_level = 1;
             gs.start_level = level;
+            // Never run the final cutscene after playtest
+            gs.final_level = level + 1;
             game_logic(gs);
         }
 
