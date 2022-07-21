@@ -96,6 +96,7 @@ int game_logic(struct game_settings gmsettings)
 	int bats_killed = 0;
 	int sprint, high_jump;
 	struct level_info world;
+	int level_repeat_count = 0;
 	while (lives > 0 && !keybuffer[ALLEGRO_KEY_ESCAPE])
 	{
 		if (diamonds == 0)
@@ -104,7 +105,7 @@ int game_logic(struct game_settings gmsettings)
 			weapon = 0;
 			int beat_time_frames = get_frame_counter() - initial_frame_counter;
 			int time_bonus = 30 * 20 - beat_time_frames;
-			if (level != 0)
+			if (level != 0 && !(level_repeat_count == 0 && gmsettings.repeat_level))
 			{
 				clear_screen_for_text();
 				if (time_bonus < 0)
@@ -136,6 +137,8 @@ int game_logic(struct game_settings gmsettings)
 				FLIP;
 				wait_key_press(ALLEGRO_KEY_ENTER);
 			}
+			if (gmsettings.repeat_level && level_repeat_count)
+				level--;
 			if (level == gmsettings.final_level)
 			{
 				set_music(3);
@@ -212,8 +215,9 @@ int game_logic(struct game_settings gmsettings)
 
 			initial_frame_counter = get_frame_counter();
 			time_counter = 0;
-			if (!gmsettings.repeat_level)
-				level++;
+			level++;
+			if (gmsettings.repeat_level)
+				level_repeat_count++;
 			jump = -1;
 			on_platform = 1;
 			x = world.init_x;
