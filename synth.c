@@ -4,6 +4,8 @@
 #include <string.h>
 #include <math.h>
 
+#define SEQ_NONE 0xBADFEED
+
 float filter_factor = 0;
 float filter_state[2] = {0, 0};
 
@@ -38,7 +40,7 @@ struct synth_track_event
 
 struct synth_voice voices[4];
 struct synth_track_event track[1024];
-int track_pos = 9999;
+int track_pos = SEQ_NONE;
 int next_event_count = 0;
 int tick_scaling = 256;
 
@@ -58,7 +60,7 @@ void synth_process(float *buf, int size)
             if (track[track_pos].voice == 0xF0)
                 track_pos = 0;
             else if (track[track_pos].voice == 0xF1)
-                track_pos = 9999;
+                track_pos = SEQ_NONE;
             else
             {
                 trigger_sound(track[track_pos].voice, track[track_pos].key);
@@ -150,8 +152,8 @@ void set_music(int track)
 {
 	static int current_track = -1;
 	if (track == 0)
-		current_track = 0xBADFEED;
-	if (current_track == 0xBADFEED)
+		current_track = SEQ_NONE;
+	if (current_track == SEQ_NONE)
 		return;
 	if (current_track != track)
 	{
