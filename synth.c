@@ -7,6 +7,7 @@
 #include <math.h>
 
 #define SEQ_NONE 0xBADFEED
+#define TRACK_MAX_SIZE 2048
 
 float filter_factor = 0;
 float filter_state[2] = {0, 0};
@@ -41,7 +42,7 @@ struct synth_track_event
 };
 
 struct synth_voice voices[4];
-struct synth_track_event track[1024];
+struct synth_track_event track[TRACK_MAX_SIZE];
 int track_pos = SEQ_NONE;
 int next_event_count = 0;
 int tick_scaling = 256;
@@ -56,7 +57,7 @@ void synth_process(float *buf, int size)
 {
     for (int i = 0; i < size; i++)
     {
-        while (track_pos < 1024 && next_event_count == 0)
+        while (track_pos < TRACK_MAX_SIZE && next_event_count == 0)
         {
             next_event_count = track[track_pos].offset * tick_scaling * 16;
             if (track[track_pos].voice == 0xF0)
@@ -134,9 +135,9 @@ void set_sequence(FILE *f)
     tick_scaling = read_tick_scaling;
     track_pos = 0;
     next_event_count = 0;
-    if (size < 1024 * 3)
+    if (size < TRACK_MAX_SIZE * 3)
     {
-        char seq[1024 * 3];
+        char seq[TRACK_MAX_SIZE * 3];
         fread(seq, 1, size,  f);
         int i;
         for (i = 0; i < size / 3; i++)
@@ -146,6 +147,8 @@ void set_sequence(FILE *f)
             track[i].key = seq[i * 3 + 2];
         }
     }
+    else
+        printf("ERROR: too long sequence: %d / %d events!\n", size / 3, TRACK_MAX_SIZE);
     fclose(f);
 }
 
