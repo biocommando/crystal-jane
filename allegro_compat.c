@@ -89,7 +89,7 @@ int init_allegro(int scaling, int opt_audio_buf_size)
     {
         al_install_audio();
         al_reserve_samples(0);
-        audio_stream = al_create_audio_stream(8, audio_buf_size, 44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+        audio_stream = al_create_audio_stream(8, audio_buf_size, 44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_1);
         mixer = al_get_default_mixer();
         al_attach_audio_stream_to_mixer(audio_stream, mixer);
     }
@@ -179,7 +179,7 @@ int wait_event()
         float *buf = (float *)al_get_audio_stream_fragment(stream);
         if (buf)
         {
-            synth_process(buf, audio_buf_size * 2);
+            synth_process(buf, audio_buf_size);
             al_set_audio_stream_fragment(stream, buf);
         }
     }

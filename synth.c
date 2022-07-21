@@ -50,7 +50,7 @@ static inline float soft_clip(const float f)
 
 void synth_process(float *buf, int size)
 {
-    for (int i = 0; i < size; i += 2)
+    for (int i = 0; i < size; i++)
     {
         while (track_pos < 1024 && next_event_count == 0)
         {
@@ -85,7 +85,6 @@ void synth_process(float *buf, int size)
         out = soft_clip(out);
         out = process_lowpass(out);
         buf[i] = out;
-        buf[i + 1] = out;
     }
 }
 
