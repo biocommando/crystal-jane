@@ -77,24 +77,20 @@ int set_game_data_file_name(const char *name)
 
 void set_highscore(int score)
 {
-    FILE *fhscore = fopen(hiscore_file_name, "w");
-    fprintf(fhscore, "%d", score ^ 0xFEFEFEFE);
+    FILE *fhscore = fopen(hiscore_file_name, "wb");
+    fwrite(&score, sizeof(int), 1, fhscore);
     fclose(fhscore);
 }
 
 int get_highscore()
 {
-    int hiscore;
-    FILE *fhscore = fopen(hiscore_file_name, "r");
+    int hiscore = 0;
+    FILE *fhscore = fopen(hiscore_file_name, "rb");
     if (fhscore)
     {
-        fscanf(fhscore, "%d", &hiscore);
+        fread(&hiscore, sizeof(int), 1, fhscore);
         fclose(fhscore);
     }
-    if (hiscore & 0xFE000000)
-        hiscore ^= 0xFEFEFEFE;
-    else
-        hiscore = 0;
     return hiscore;
 }
 
