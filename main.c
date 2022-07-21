@@ -121,6 +121,9 @@ int main(int argc, char **argv)
 		wait_key_press(ALLEGRO_KEY_ENTER);
 	}
 
+	if (read_game_data_setting("use_custom_music", 0))
+		use_custom_music();
+
 	if (GET_ARG('m'))
 	{
 		set_music(0);

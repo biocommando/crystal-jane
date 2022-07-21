@@ -8,6 +8,7 @@ EXTERN_GLOBALS;
 char game_data_file_name[256] = "gdat.dat";
 char hiscore_file_name[256] = "hiscore.jan";
 char best_times_file_name[256] = "best_times.jan";
+char music_file_pattern[256] = "music%d.bin";
 
 int read_game_data_file_until(FILE *f, const char *title, char id)
 {
@@ -192,4 +193,16 @@ void get_story(char *story, int max_len, char id)
         strcat(story, buf);
     }
     fclose(f);
+}
+
+void use_custom_music()
+{
+    snprintf(music_file_pattern, sizeof(music_file_pattern), "%s-music%%d.bin", game_data_file_name);
+}
+
+FILE *get_music_file(int track_num)
+{
+    char track_name[256];
+    sprintf(track_name, music_file_pattern, track_num);
+    return fopen(track_name, "rb");
 }

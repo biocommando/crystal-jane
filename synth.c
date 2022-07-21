@@ -1,5 +1,7 @@
 #include "synth.h"
 
+#include "game_data.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -119,13 +121,12 @@ void trigger_sound(int voice, float freq)
     }
 }
 
-void set_sequence(const char *file)
+void set_sequence(FILE *f)
 {
     for (int i = 0; i < 4; i++)
     {
         voices[i].phase_inc = 0;
     }
-    FILE *f = fopen(file, "rb");
     unsigned size;
     fread(&size, sizeof(unsigned), 1, f);
     unsigned char read_tick_scaling;
@@ -158,8 +159,6 @@ void set_music(int track)
 	if (current_track != track)
 	{
 		current_track = track;
-		char fname[32];
-		sprintf(fname, "music%d.bin", track);
-		set_sequence(fname);
+		set_sequence(get_music_file(track));
 	}
 }

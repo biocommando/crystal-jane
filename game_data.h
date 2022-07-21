@@ -19,6 +19,10 @@ int get_highscore();
 
 FILE *get_game_data_file();
 
+void use_custom_music();
+
+FILE *get_music_file(int track_num);
+
 void read_level(int level, struct level_info *info);
 
 void game_data_read_sprite(char sprite, char *sprite_buf, int sprite_size);
