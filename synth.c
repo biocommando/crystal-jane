@@ -96,7 +96,7 @@ void synth_process(float *buf, int size)
 void synth_init(int flags)
 {
     update_lowpass(6000);
-    track_pos = 9999;
+    track_pos = SEQ_NONE;
     memset(&voices, 0, sizeof(voices));
     for (int i = 0; i < 4; i++)
     {
