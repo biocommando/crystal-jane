@@ -110,6 +110,9 @@ int game_logic(struct game_settings gmsettings)
 				clear_screen_for_text();
 				if (time_bonus < 0)
 					time_bonus = 0;
+				// Extra bonus for killing all bats
+				if (bats_killed == world.bat_count)
+					bats_killed *= 2;
 				bats_killed *= 50;
 				score += time_bonus;
 				score += bats_killed;
@@ -181,10 +184,13 @@ int game_logic(struct game_settings gmsettings)
 				clear_screen_for_text();
 				sprite_do(250, 48, SP_PLAYER_W, SP_PLAYER_H, SP_STONEMAN, 4);
 				sprite_do(x, 80, SP_PLAYER_W, SP_PLAYER_H, anim[0], 2);
-				score += lives * 1000;
+				int lives_bonus = lives * 1000;
+				if (lives == gmsettings.max_lives)
+					lives_bonus += 1000;
+				score += lives_bonus;
 				get_story(story, sizeof(story), '5');
 				screen_printf("%s\n\nLIVES BONUS: %d\n"
-							  "TOTAL SCORE: %d\n", story, lives * 1000, score);
+							  "TOTAL SCORE: %d\n", story, lives_bonus, score);
 
 				if (score > hiscore && !gmsettings.start_level) // Hiscore logic disabled if level jump is used
 				{
